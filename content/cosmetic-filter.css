@@ -1,0 +1,231 @@
+/* Genel reklam container'larını gizle - tüm siteler */
+/* Google Ads */
+ins.adsbygoogle,
+.adsbygoogle,
+[id^="google_ads"],
+[id^="div-gpt-ad"],
+.gpt-ad,
+iframe[src*="doubleclick.net"],
+iframe[src*="googlesyndication.com"],
+iframe[id*="google_ads"],
+[data-ad-slot],
+[data-ad-client] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Yaygın reklam class'ları */
+.ad-container,
+.ad-wrapper,
+.ad-banner,
+.ad-slot,
+.ad-unit,
+.ad-block,
+.ad-panel,
+.advertisement,
+.ads-container,
+[class*="ad-placement"],
+[class*="ad-leaderboard"],
+[class*="ad-sidebar"],
+[class*="ad-footer"],
+[id*="ad-container"],
+[id*="ad-wrapper"],
+[id*="sidebar-ad"],
+[id*="banner-ad"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Popup / modal reklamlar */
+[class*="popup-ad"],
+[class*="modal-ad"],
+[id*="popup-ad"],
+[class*="interstitial"],
+div[class*="overlay-ad"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Data-attribute bazlı reklam seçicileri */
+[data-advertisement-link],
+[data-advertisement],
+[data-ad],
+[data-ad-type],
+[data-ad-id],
+[data-ad-name],
+[data-ad-unit],
+[data-ad-wrapper],
+[data-ad-manager],
+[data-ad-module],
+[data-ad-position],
+[data-adblock],
+[data-native-ad],
+[data-google-query-id],
+[data-ad-targeting],
+[data-dfp-ad],
+[data-freestar-ad],
+[data-revive-zoneid],
+[data-rcm-ad],
+[data-advertiser-id],
+[data-ad-region],
+[data-ad-zone],
+[data-free-banner],
+[data-free-ad],
+[data-banner-ad],
+[data-banner] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Sponsored content markers */
+[class*="sponsored"],
+[data-sponsored],
+[aria-label="Sponsored"] {
+  opacity: 0.3 !important;
+  position: relative !important;
+}
+
+/* Bilinen reklam yönlendirme domainleri (link bazlı) */
+a[href*="shortbal.online"],
+a[href*="bit.ly"][target="_blank"],
+a[href*="tinyurl.com"][target="_blank"],
+a[href*="cutt.ly"],
+a[href*="rebrand.ly"],
+a[href*="adf.ly"],
+a[href*="ouo.io"],
+a[href*="bc.vc"],
+a[href*="adfly"],
+a[href*="linkvertise"],
+a[href*="shrinkme"],
+a[href*="exe.io"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Reklam linki içeren parent div'leri de gizle */
+div:has(> a[href*="shortbal.online"]),
+div:has(> a[href*="adf.ly"]),
+div:has(> a[href*="ouo.io"]),
+div:has(> a[href*="linkvertise"]),
+div:has(> a[href*="cutt.ly"]),
+div:has(> a[href*="rebrand.ly"]) {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* ============================================
+   Selcuksportshd & Türk Spor Yayın Siteleri
+   ============================================ */
+
+/* Bilinen reklam ID'leri ve class'ları */
+#ssbet,
+#footersabit,
+tolbet,
+.arkaplan,
+.reklam,
+.reklamlar,
+[id*="reklam"],
+[class*="reklam"],
+.clappr-watermark[data-watermark],
+div[data-poster]:has(a),
+div[class*="player-poster"]:has(a) {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Bahis ve casino affiliate linkleri */
+a[href*="eurocasinoaffiliate"],
+a[href*="bahis"],
+a[href*="casino"],
+a[href*="bet365"],
+a[href*="bets10"],
+a[href*="tipobet"],
+a[href*="betboo"],
+a[href*="kralbet"],
+a[href*="matbet"],
+a[href*="mobilbahis"],
+a[href*="youwin"],
+a[href*="superbetin"],
+a[href*="betkanyon"],
+a[href*="1xbet"],
+a[href*="pinbahis"],
+a[href*="sahabet"],
+a[href*="jasminbet"],
+a[href*="pusulabet"],
+a[href*="betpas"],
+a[href*="restbet"],
+a[href*="milanobet"],
+a[href*="imajbet"],
+a[href*="mariobet"],
+a[href*="betexper"],
+a[href*="wonodds"],
+a[href*="strmrdrfrm"],
+a[href*="slcksprtsbot"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Tam ekran overlay / popup reklamlar (yayın siteleri) */
+div[style*="position: fixed"][style*="z-index"][style*="width: 100"]:not([class]):not([id]),
+div[style*="position:fixed"][style*="z-index"][style*="width:100"]:not([class]):not([id]),
+div[style*="position: fixed"][style*="z-index"][style*="height: 100"]:not([class]):not([id]),
+div[style*="position:fixed"][style*="z-index"][style*="height:100"]:not([class]):not([id]) {
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
+/* Reklam overlay katmanları - genellikle tam ekran ve şeffaf */
+div[style*="pointer-events: auto"][style*="position: fixed"]:not([class]):not([id]),
+div[style*="pointer-events:auto"][style*="position:fixed"]:not([class]):not([id]) {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Class'sız, id'siz overlay div'ler (reklam tıklama katmanları) */
+body > div[style*="position: fixed"][style*="z-index"]:not([class]):not([id]):has(a[target="_blank"]),
+body > div[style*="position:fixed"][style*="z-index"]:not([class]):not([id]):has(a[target="_blank"]) {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Reklam gösteren img elementleri (yayın siteleri) */
+a[href][target="_blank"] > img:not([alt]),
+a[href*="partner"] > img {
+  display: none !important;
+}
+
+/* Bahis/reklam img bannerları */
+img[src*="-ad-"],
+img[src*="_ad_"],
+img[src*="banner"],
+img[src*="reklam"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* iframe bazlı reklamlar */
+iframe[src*="strmrdrfrm"],
+iframe[src*="slcksprtsbot"] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+}

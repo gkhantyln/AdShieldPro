@@ -1,0 +1,64 @@
+{
+   "action": {
+      "default_popup": "popup/popup.html",
+      "default_title": "AdShield Pro"
+   },
+   "background": {
+      "service_worker": "background/service_worker.js",
+      "type": "module"
+   },
+   "content_scripts": [ {
+      "all_frames": true,
+      "js": [ "content/injector.js" ],
+      "matches": [ "*://*.youtube.com/*", "*://m.youtube.com/*" ],
+      "run_at": "document_start",
+      "world": "MAIN"
+   }, {
+      "all_frames": true,
+      "css": [ "content/common.css" ],
+      "js": [ "content/yt-blocker.js" ],
+      "matches": [ "*://*.youtube.com/*", "*://m.youtube.com/*" ],
+      "run_at": "document_idle"
+   }, {
+      "all_frames": true,
+      "css": [ "content/cosmetic-filter.css" ],
+      "js": [ "content/cosmetic-filter.js" ],
+      "matches": [ "<all_urls>" ],
+      "run_at": "document_start"
+   }, {
+      "all_frames": false,
+      "js": [ "content/element-picker.js" ],
+      "matches": [ "<all_urls>" ],
+      "run_at": "document_idle"
+   } ],
+   "declarative_net_request": {
+      "rule_resources": [ {
+         "enabled": true,
+         "id": "yt_rules",
+         "path": "rules/rules_yt.json"
+      }, {
+         "enabled": true,
+         "id": "general_rules",
+         "path": "rules/rules_general.json"
+      } ]
+   },
+   "description": "AdShield Pro v2.0 - Custom rules, element picker, statistics panel and advanced ad blocking.",
+   "host_permissions": [ "<all_urls>" ],
+   "icons": {
+      "128": "icons/icon128.png",
+      "16": "icons/icon16.png",
+      "24": "icons/icon24.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA66MA7Ax/9bHGiFqW5c5JOxby+aU4J1YGT2mgbgeVtwBwQDE+evbzLQqXxeti3xIVn9sM8xI5c6u8J3yhIf5Qo97ejb4TxxZW11J0fSttTS93r/NItTRPrIRzOPJ5d4JZO+kK/xFTyQcySN+TglU8gSvIwhh585PtI54DluC2n3rCyqKnSiZrQ7KAREfK1WR7/3KtoI7RnVmYB02++z/sNi8eRQ8jIH38Ve9DAdTW4QxQ8x1wBZ14rWXSgdbfXszbh3yjmtFBOseOIatXlgs7tFK8BBO8vs/6ZHxR0NcVt7dFK0932zlOsTV+6GXeaEVC3aY25Gl4f0EOXKwT01ibDwIDAQAB",
+   "manifest_version": 3,
+   "name": "AdShield Pro",
+   "permissions": [ "declarativeNetRequest", "declarativeNetRequestFeedback", "storage", "scripting", "activeTab", "tabs" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "2.0",
+   "web_accessible_resources": [ {
+      "resources": [ "content/element-picker.css" ],
+      "matches": [ "<all_urls>" ]
+   } ]
+}

@@ -1,0 +1,113 @@
+/* Element Picker Overlay Styles */
+#re-picker-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 2147483647 !important;
+  cursor: crosshair !important;
+  background: transparent !important;
+  pointer-events: none !important;
+}
+
+#re-picker-overlay.active {
+  pointer-events: auto !important;
+}
+
+/* Highlight box for hovered element */
+#re-picker-highlight {
+  position: fixed !important;
+  border: 2px dashed #ef4444 !important;
+  background: rgba(239, 68, 68, 0.12) !important;
+  pointer-events: none !important;
+  z-index: 2147483646 !important;
+  transition: all 0.08s ease-out !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.25) !important;
+  border-radius: 4px !important;
+}
+
+/* Info tooltip showing selector */
+#re-picker-tooltip {
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  font-family: 'Segoe UI', sans-serif !important;
+  font-size: 12px !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+  pointer-events: none !important;
+  max-width: 400px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Confirm / Cancel bar */
+#re-picker-actionbar {
+  position: fixed !important;
+  bottom: 24px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  gap: 10px !important;
+  background: #0f172a !important;
+  padding: 12px 20px !important;
+  border-radius: 16px !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5) !important;
+  font-family: 'Segoe UI', sans-serif !important;
+  animation: re-picker-slidein 0.3s ease !important;
+}
+
+@keyframes re-picker-slidein {
+  from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+#re-picker-actionbar button {
+  border: none !important;
+  padding: 8px 20px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+#re-picker-btn-confirm {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  color: white !important;
+}
+
+#re-picker-btn-confirm:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+  transform: scale(1.05) !important;
+}
+
+#re-picker-btn-cancel {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+  border: 1px solid #334155 !important;
+}
+
+#re-picker-btn-cancel:hover {
+  background: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+#re-picker-actionbar .re-picker-info {
+  color: #94a3b8 !important;
+  font-size: 11px !important;
+  display: flex !important;
+  align-items: center !important;
+  margin-right: 8px !important;
+  max-width: 200px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
