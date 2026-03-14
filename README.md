@@ -45,20 +45,6 @@ Say goodbye to distractions and hello to a cleaner, faster, and safer internet.
 5.  Select the `AdShieldPro` directory.
 6.  Enjoy a cleaner web! 🎉
 
-## 📸 Screenshots
-
-<div align="center">
-  <table>
-    <tr>
-      <td align="center"><b>Modern Popup UI</b></td>
-      <td align="center"><b>Smart Element Picker</b></td>
-    </tr>
-    <tr>
-      <td><img src="https://via.placeholder.com/300x400/1a1f35/ffffff?text=Popup+UI" alt="Popup UI"></td>
-      <td><img src="https://via.placeholder.com/300x400/1a1f35/ffffff?text=Element+Picker" alt="Element Picker"></td>
-    </tr>
-  </table>
-</div>
 
 ## 🔧 Technical Details
 
