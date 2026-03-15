@@ -3,7 +3,7 @@
 # 🛡️ AdShield Pro v2.0
 ### The Ultimate Ad Blocking Experience
 
-<img alt="image.png" data-hpc="true" src="https://github.com/gkhantyln/AdShieldPro/blob/main/image.png?raw=true" style="max-width: 100%;">
+<img alt="image.png" data-hpc="true" src="https://github.com/gkhantyln/AdShieldPro/blob/main/image.png" style="max-width: 100%;">
 
 [![Version](https://img.shields.io/badge/version-2.0%20Pro-blue.svg?style=for-the-badge)](https://github.com/gkhantyln/AdShieldPro)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)](LICENSE)
