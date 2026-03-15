@@ -161,68 +161,76 @@
     return false;
   }
 
-  // Elementin benzersiz CSS selector'ünü oluştur
-  function generateSelector(el) {
-    if (!el || el === document.body || el === document.documentElement) return '';
-    
-    // ID varsa ve güvenilirse kullan
-    if (el.id && /^[a-zA-Z]/.test(el.id) && !el.id.includes(':') && !el.id.startsWith('re-picker') && !isDynamicId(el.id)) {
-      return '#' + CSS.escape(el.id);
-    }
-
-    const tag = el.tagName.toLowerCase();
-    const classes = Array.from(el.classList || [])
-      .filter(c => !c.startsWith('re-picker') && /^[a-zA-Z_-]/.test(c) && !isDynamicClass(c));
-
-    if (classes.length > 0) {
-      const classSelector = tag + '.' + classes.map(c => CSS.escape(c)).join('.');
-      try {
-        const matches = document.querySelectorAll(classSelector);
-        if (matches.length <= 5) return classSelector;
-      } catch(e) {}
-    }
-
-    // nth-child ile parent'tan yürü
-    const parent = el.parentElement;
-    if (parent && parent !== document.documentElement) {
-      const siblings = Array.from(parent.children);
-      const index = siblings.indexOf(el) + 1;
-      const parentSelector = generateSelector(parent);
-      if (parentSelector) {
-        return parentSelector + ' > ' + tag + ':nth-child(' + index + ')';
-      }
-    }
-
-    return tag;
-  }
-
+  // Elementin benzersiz CSS selector'ünü oluştur (Gelişmiş)
   function buildSmartSelector(el) {
-    if (!el) return '';
-    
-    // ID bazlı (güvenilir ise)
-    if (el.id && /^[a-zA-Z]/.test(el.id) && !el.id.startsWith('re-picker') && !isDynamicId(el.id)) {
-      return '#' + CSS.escape(el.id);
-    }
-    
-    // class bazlı
-    const classes = Array.from(el.classList || [])
-      .filter(c => !c.startsWith('re-picker') && /^[a-zA-Z_-]/.test(c) && !isDynamicClass(c));
-    
-    if (classes.length > 0) {
-      const tag = el.tagName.toLowerCase();
-      // Tüm class kombinasyonlarını dene
-      for (let i = Math.min(classes.length, 3); i >= 1; i--) {
-        const combo = classes.slice(0, i);
-        const sel = tag + '.' + combo.map(c => CSS.escape(c)).join('.');
-        try {
-          const matches = document.querySelectorAll(sel);
-          if (matches.length <= 10) return sel; // Makul sayıda eşleşme varsa kullan
-        } catch(e) {}
+    if (!el || el === document.body || el === document.documentElement) return '';
+
+    const path = [];
+    let current = el;
+    let fallbackCount = 0;
+
+    while (current && current !== document.documentElement && path.length < 4) { // En fazla 4 derinlikte çık
+      let selector = '';
+
+      // 1. Durum: Güvenilir ve kısa ID varsa direkt onu al ve aramayı kes
+      if (current.id && /^[a-zA-Z]/.test(current.id) && !isDynamicId(current.id)) {
+        selector = '#' + CSS.escape(current.id);
+        path.unshift(selector);
+        break; 
       }
+
+      // 2. Durum: Class tabanlı seçici
+      const tag = current.tagName.toLowerCase();
+      const classes = Array.from(current.classList || [])
+        .filter(c => !c.startsWith('re-picker') && /^[a-zA-Z_-]/.test(c) && !isDynamicClass(c));
+      
+      if (classes.length > 0) {
+        // En belirleyici olan ilk 2 classı al (çok uzun class kombinasyonlarından kaçın)
+        const bestClasses = classes.slice(0, 2);
+        selector = tag + '.' + bestClasses.map(c => CSS.escape(c)).join('.');
+      } else {
+        // Sadece tag
+        selector = tag;
+      }
+
+      // 3. Durum (Önemli): Eğer bu elementin kardeşleri aynı tag/class yapısına sahipse nth-child veya nth-of-type ekle
+      const parent = current.parentElement;
+      if (parent) {
+        let sameTypeSiblings = 0;
+        let myIndex = 0;
+        const siblings = Array.from(parent.children);
+        
+        for (let i = 0; i < siblings.length; i++) {
+          const sibling = siblings[i];
+          if (sibling.tagName === current.tagName) {
+            sameTypeSiblings++;
+            if (sibling === current) myIndex = sameTypeSiblings;
+          }
+        }
+
+        // Eğer kardeşler arasında benzer elementler varsa onu indeksle
+        if (sameTypeSiblings > 1 && !selector.includes('#')) {
+          selector += `:nth-of-type(${myIndex})`;
+        }
+      }
+
+      path.unshift(selector);
+      current = current.parentElement;
+      fallbackCount++;
     }
+
+    const finalSelector = path.join(' > ');
     
-    // ID veya Class yetmediyse hiyerarşik yapı kullan
-    return generateSelector(el);
+    // Test et: Bu seçici sayfada çok fazla element seçiyor mu? (Örn: 5'ten fazla)
+    try {
+      const matches = document.querySelectorAll(finalSelector);
+      if (matches.length > 10) {
+         // Çok genel bir kural oldu. body veya parent classlarından destek al.
+         return finalSelector; // Yine de dönsün, kullanıcı UI da görecektir.
+      }
+    } catch(e) {}
+
+    return finalSelector;
   }
 
   // Element'in picker UI parçası olup olmadığını kontrol et
