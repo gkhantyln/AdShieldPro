@@ -184,8 +184,13 @@
       }
     });
 
-    // 5. Bilinen reklam ID/class'ları
-    ['#ssbet', '#footersabit', '.arkaplan', '.reklam', 'tolbet', '.clappr-watermark[data-watermark]', 'div[data-poster]:has(a)'].forEach(sel => {
+    // 5. Bilinen reklam ID/class'ları ve Haber Siteleri Özel Kombinasyonları
+    [
+      '#ssbet', '#footersabit', '.arkaplan', '.reklam', 'tolbet', 
+      '.clappr-watermark[data-watermark]', 'div[data-poster]:has(a)',
+      '.new3slide:has(.rekkklam[data-adv-id])',  // Haber siteleri içi advertorial şablonları
+      '.new3slide:has(a[class*="rekkklam"])'     // Alternatif class eşleşmesi
+    ].forEach(sel => {
       try {
         document.querySelectorAll(sel).forEach(el => {
           el.style.setProperty('display', 'none', 'important');
