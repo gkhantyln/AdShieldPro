@@ -112,10 +112,22 @@
     requestAnimationFrame(() => { scheduled = false; tick(); });
   }
 
+  function restoreMasthead() {
+    const masthead = document.querySelector('#masthead-container');
+    if (masthead) {
+      const cs = getComputedStyle(masthead);
+      if (cs.display === 'none' || cs.visibility === 'hidden') {
+        masthead.style.setProperty('display', 'block', 'important');
+        masthead.style.setProperty('visibility', 'visible', 'important');
+      }
+    }
+  }
+
   function tick() {
     removeAdOverlays();
     skipVideoAd();
     handleAdPlayback();
+    restoreMasthead();
   }
 
   function start() {

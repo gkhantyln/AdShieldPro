@@ -8,8 +8,8 @@ ins.adsbygoogle,
 iframe[src*="doubleclick.net"],
 iframe[src*="googlesyndication.com"],
 iframe[id*="google_ads"],
-[data-ad-slot],
-[data-ad-client] {
+:not([class*="ytd-"]):not([class*="yt-"])[data-ad-slot],
+:not([class*="ytd-"]):not([class*="yt-"])[data-ad-client] {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
@@ -50,20 +50,19 @@ div[class*="overlay-ad"] {
   visibility: hidden !important;
 }
 
-/* Data-attribute bazlı reklam seçicileri */
-[data-advertisement-link],
-[data-advertisement],
-[data-ad],
-[data-ad-type],
-[data-ad-id],
-[data-ad-name],
-[data-ad-unit],
-[data-ad-wrapper],
-[data-ad-manager],
-[data-ad-module],
-[data-ad-position],
-[data-adblock],
-[data-native-ad],
+/* Data-attribute bazlı reklam seçicileri (YouTube elementleri hariç) */
+:not([class*="ytd-"]):not([class*="yt-"])[data-advertisement-link],
+:not([class*="ytd-"]):not([class*="yt-"])[data-advertisement],
+:not([class*="ytd-"]):not([class*="yt-"])[data-ad-type],
+:not([class*="ytd-"]):not([class*="yt-"])[data-ad-id],
+:not([class*="ytd-"]):not([class*="yt-"])[data-ad-name],
+:not([class*="ytd-"]):not([class*="yt-"])[data-ad-unit],
+:not([class*="ytd-"]):not([class*="yt-"])[data-ad-wrapper],
+:not([class*="ytd-"]):not([class*="yt-"])[data-ad-manager],
+:not([class*="ytd-"]):not([class*="yt-"])[data-ad-module],
+:not([class*="ytd-"]):not([class*="yt-"])[data-ad-position],
+:not([class*="ytd-"]):not([class*="yt-"])[data-adblock],
+:not([class*="ytd-"]):not([class*="yt-"])[data-native-ad],
 [data-google-query-id],
 [data-ad-targeting],
 [data-dfp-ad],
@@ -76,7 +75,7 @@ div[class*="overlay-ad"] {
 [data-free-banner],
 [data-free-ad],
 [data-banner-ad],
-[data-banner] {
+:not(ytd-masthead):not([class*="ytd-"]):not([class*="yt-"])[data-banner] {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
@@ -206,17 +205,16 @@ body > div[style*="position:fixed"][style*="z-index"]:not([class]):not([id]):has
   pointer-events: none !important;
 }
 
-/* Reklam gösteren img elementleri (yayın siteleri) */
-a[href][target="_blank"] > img:not([alt]),
-a[href*="partner"] > img {
+/* Reklam gösteren img elementleri (yayın siteleri - youtube hariç) */
+:not(ytd-masthead):not(ytd-topbar-logo-renderer):not(ytd-topbar-menu-button-renderer) > a[href][target="_blank"] > img:not([alt]),
+:not(ytd-masthead) > a[href*="partner"] > img {
   display: none !important;
 }
 
-/* Bahis/reklam img bannerları */
-img[src*="-ad-"],
-img[src*="_ad_"],
-img[src*="banner"],
-img[src*="reklam"] {
+/* Bahis/reklam img bannerları (youtube hariç) */
+:not([class*="yt"]):not([class*="ytd"]) img[src*="-ad-"],
+:not([class*="yt"]):not([class*="ytd"]) img[src*="_ad_"],
+:not([class*="yt"]):not([class*="ytd"]) img[src*="reklam"] {
   display: none !important;
   visibility: hidden !important;
 }
