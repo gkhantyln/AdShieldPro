@@ -32,7 +32,6 @@
       "32": "icons/icon32.png",
       "48": "icons/icon48.png"
    },
-   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA66MA7Ax/9bHGiFqW5c5JOxby+aU4J1YGT2mgbgeVtwBwQDE+evbzLQqXxeti3xIVn9sM8xI5c6u8J3yhIf5Qo97ejb4TxxZW11J0fSttTS93r/NItTRPrIRzOPJ5d4JZO+kK/xFTyQcySN+TglU8gSvIwhh585PtI54DluC2n3rCyqKnSiZrQ7KAREfK1WR7/3KtoI7RnVmYB02++z/sNi8eRQ8jIH38Ve9DAdTW4QxQ8x1wBZ14rWXSgdbfXszbh3yjmtFBOseOIatXlgs7tFK8BBO8vs/6ZHxR0NcVt7dFK0932zlOsTV+6GXeaEVC3aY25Gl4f0EOXKwT01ibDwIDAQAB",
    "manifest_version": 3,
    "name": "__MSG_appName__",
    "default_locale": "tr",
