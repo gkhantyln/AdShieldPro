@@ -32,6 +32,14 @@ const DYNAMIC_SCRIPTS = [
     world: 'MAIN'
   },
   {
+    id: 'heuristic-tracker-blocker',
+    allFrames: true,
+    js: ['content/heuristic.js'],
+    matches: ['<all_urls>'],
+    runAt: 'document_start',
+    world: 'MAIN'
+  },
+  {
     id: 'yt-blocker',
     allFrames: true,
     css: ['content/common.css'],
