@@ -8,24 +8,6 @@
       "type": "module"
    },
    "content_scripts": [ {
-      "all_frames": true,
-      "js": [ "content/injector.js" ],
-      "matches": [ "*://*.youtube.com/*", "*://m.youtube.com/*" ],
-      "run_at": "document_start",
-      "world": "MAIN"
-   }, {
-      "all_frames": true,
-      "css": [ "content/common.css" ],
-      "js": [ "content/yt-blocker.js" ],
-      "matches": [ "*://*.youtube.com/*", "*://m.youtube.com/*" ],
-      "run_at": "document_idle"
-   }, {
-      "all_frames": true,
-      "css": [ "content/cosmetic-filter.css" ],
-      "js": [ "content/cosmetic-filter.js" ],
-      "matches": [ "<all_urls>" ],
-      "run_at": "document_start"
-   }, {
       "all_frames": false,
       "js": [ "content/element-picker.js" ],
       "matches": [ "<all_urls>" ],

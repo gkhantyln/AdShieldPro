@@ -319,6 +319,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   mainToggle.addEventListener('change', async () => {
     await sendMsg({ type: 'SET_ENABLED', enabled: mainToggle.checked });
     await loadState();
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab && !tab.url.startsWith('chrome://') && !tab.url.startsWith('edge://')) {
+        chrome.tabs.reload(tab.id);
+      }
+    } catch (e) {}
   });
 
   // Element Picker

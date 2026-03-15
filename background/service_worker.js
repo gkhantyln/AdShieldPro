@@ -22,11 +22,51 @@ async function setBadge(enabled) {
   } catch (e) {}
 }
 
+const DYNAMIC_SCRIPTS = [
+  {
+    id: 'injector-js',
+    allFrames: true,
+    js: ['content/injector.js'],
+    matches: ['*://*.youtube.com/*', '*://m.youtube.com/*'],
+    runAt: 'document_start',
+    world: 'MAIN'
+  },
+  {
+    id: 'yt-blocker',
+    allFrames: true,
+    css: ['content/common.css'],
+    js: ['content/yt-blocker.js'],
+    matches: ['*://*.youtube.com/*', '*://m.youtube.com/*'],
+    runAt: 'document_idle'
+  },
+  {
+    id: 'cosmetic-filter',
+    allFrames: true,
+    css: ['content/cosmetic-filter.css'],
+    js: ['content/cosmetic-filter.js'],
+    matches: ['<all_urls>'],
+    runAt: 'document_start'
+  }
+];
+
 async function applyRulesetState(enabled) {
   const options = enabled
     ? { enableRulesetIds: RULESET_IDS, disableRulesetIds: [] }
     : { enableRulesetIds: [], disableRulesetIds: RULESET_IDS };
   await chrome.declarativeNetRequest.updateEnabledRulesets(options);
+
+  try {
+    const registered = await chrome.scripting.getRegisteredContentScripts();
+    const ids = registered.map(s => s.id);
+    if (ids.length > 0) {
+      await chrome.scripting.unregisterContentScripts({ ids });
+    }
+    if (enabled) {
+      await chrome.scripting.registerContentScripts(DYNAMIC_SCRIPTS);
+    }
+  } catch(e) {
+    console.error('Script registration error:', e);
+  }
 }
 
 async function isPaused() {
