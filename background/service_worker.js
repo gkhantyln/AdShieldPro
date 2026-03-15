@@ -169,8 +169,9 @@ chrome.runtime.onInstalled.addListener(async () => {
     await chrome.storage.local.set({ [STORAGE_KEY_STATS]: { total: 0, daily: {}, byDomain: {} } });
   }
 
-  // Periyodik Güncelleme Alarmı (8 saatte bir = günde 3 kez)
+  // Periyodik Güncelleme Alarmları
   chrome.alarms.create('cloudUpdate', { periodInMinutes: 8 * 60 });
+  chrome.alarms.create('checkState', { periodInMinutes: 1 }); // Her dakika kontrol
   
   await init();
 });
@@ -186,10 +187,12 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
   }
 });
 
-// ── Periyodik Kontrol ────────────────────────────────
-setInterval(() => {
-  updateEffectiveState();
-}, 60 * 1000);
+// ── Periyodik Kontrol (V3'te alarms kullanılması önerilir) ──
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === 'checkState') {
+    updateEffectiveState();
+  }
+});
 
 // ── Mesaj İşleme ─────────────────────────────────────
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -317,17 +320,20 @@ async function handleMessage(msg, sender) {
 
     case 'SET_ENABLED': {
       await chrome.storage.local.set({ [STORAGE_KEY_ENABLED]: msg.enabled });
+      await updateEffectiveState(); // Anında güncelle
       return { success: true };
     }
 
     case 'PAUSE': {
       const until = Date.now() + (msg.minutes * 60 * 1000);
       await chrome.storage.local.set({ [STORAGE_KEY_PAUSE_UNTIL]: until });
+      await updateEffectiveState(); // Anında güncelle
       return { success: true };
     }
 
     case 'RESUME': {
       await chrome.storage.local.set({ [STORAGE_KEY_PAUSE_UNTIL]: 0 });
+      await updateEffectiveState(); // Anında güncelle
       return { success: true };
     }
 
@@ -508,5 +514,7 @@ async function updateCloudRules() {
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'cloudUpdate') {
     updateCloudRules();
+  } else if (alarm.name === 'checkState') {
+    updateEffectiveState();
   }
 });
