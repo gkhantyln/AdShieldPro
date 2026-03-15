@@ -8,33 +8,33 @@
   let appliedStyleEl = null;
   const currentDomain = window.location.hostname;
 
-  // Whitelist kontrolü
-  async function isWhitelisted() {
-    try {
-      const data = await chrome.storage.local.get({ [STORAGE_WHITELIST]: [] });
-      const whitelist = data[STORAGE_WHITELIST] || [];
-      return whitelist.some(domain => currentDomain === domain || currentDomain.endsWith('.' + domain));
-    } catch(e) {
-      return false;
-    }
-  }
-
   // Kuralları yükle ve uygula
   async function applyCustomRules() {
-    // Whitelist kontrolü
-    if (await isWhitelisted()) {
-      removeAppliedRules();
-      return;
-    }
-
     try {
-      const data = await chrome.storage.local.get({ [STORAGE_KEY]: [] });
+      // Bir kerede tüm veriyi çekerek gecikmeyi azaltalım
+      const data = await chrome.storage.local.get({ 
+        [STORAGE_WHITELIST]: [], 
+        [STORAGE_KEY]: [] 
+      });
+      
+      const whitelist = data[STORAGE_WHITELIST] || [];
       const rules = data[STORAGE_KEY] || [];
+
+      // Whitelist kontrolü
+      const isWhitelisted = whitelist.some(domain => 
+        currentDomain === domain || currentDomain.endsWith('.' + domain)
+      );
+
+      if (isWhitelisted) {
+        removeAppliedRules();
+        return;
+      }
       
       if (rules.length === 0) return;
 
       // Bu domain için geçerli kuralları filtrele
       const applicableRules = rules.filter(rule => {
+        if (!rule.enabled) return false;
         if (rule.allSites) return true;
         if (!rule.domain) return false;
         return currentDomain === rule.domain || currentDomain.endsWith('.' + rule.domain);
@@ -44,30 +44,39 @@
 
       // CSS kuralları oluştur
       const cssRules = applicableRules.map(rule => {
-        try {
-          // Selector'ün geçerli olduğunu test et
-          document.querySelector(rule.selector);
-          return rule.selector + ' { display: none !important; visibility: hidden !important; }';
-        } catch(e) {
-          return null;
-        }
-      }).filter(Boolean);
+        return rule.selector + ' { display: none !important; visibility: hidden !important; height: 0 !important; pointer-events: none !important; }';
+      });
 
       if (cssRules.length === 0) return;
 
-      // Mevcut stil elementini kaldır
+      // Mevcut stil elementini kaldır (varsa)
       removeAppliedRules();
 
       // Yeni stil elementi oluştur
       appliedStyleEl = document.createElement('style');
       appliedStyleEl.id = 're-custom-rules';
       appliedStyleEl.textContent = cssRules.join('\n');
-      (document.head || document.documentElement).appendChild(appliedStyleEl);
+      
+      // document.head henüz oluşmamış olabilir (document_start), bu yüzden documentElement'e ekle
+      const target = document.head || document.documentElement;
+      if (target) {
+        target.appendChild(appliedStyleEl);
+      } else {
+        // Çok uç bir durumda henüz hiçbiri yoksa
+        const observer = new MutationObserver(() => {
+          const t = document.head || document.documentElement;
+          if (t) {
+            t.appendChild(appliedStyleEl);
+            observer.disconnect();
+          }
+        });
+        observer.observe(document, { childList: true, subtree: true });
+      }
 
       // İstatistik güncelle
       updateStats(applicableRules.length);
     } catch(e) {
-      // Sessizce devam et
+      console.error('Apply rules error:', e);
     }
   }
 
@@ -119,12 +128,8 @@
     return true;
   });
 
-  // Başlangıçta kuralları uygula
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyCustomRules);
-  } else {
-    applyCustomRules();
-  }
+  // 1. ADIM: Kuralları anında uygula (DOMContentLoaded bekleme)
+  applyCustomRules();
 
   // MutationObserver ile yeni eklenen içerikleri de kontrol et
   let refreshTimeout = null;
@@ -211,23 +216,22 @@
   const observer = new MutationObserver((mutations) => {
     if (refreshTimeout) clearTimeout(refreshTimeout);
     refreshTimeout = setTimeout(() => {
-      // applyCustomRules() çağrısını kaldırdık çünkü CSS bir kere eklendiğinde kalıcıdır.
-      // Sadece JS tabanlı temizlik (aggressiveClean) sürekli çalışmalı.
       aggressiveClean();
-    }, 300);
+    }, 100); // Gecikmeyi 300ms'den 100ms'ye indirdik
   });
 
   function startObserver() {
-    const target = document.body || document.documentElement;
+    const target = document.documentElement; // body oluşmamış olabilir, documentElement daha güvenli
     observer.observe(target, {
       childList: true,
       subtree: true
     });
-    // İlk taramayı yap
+    // İlk taramayı anında yap
     aggressiveClean();
   }
 
-  if (document.body) {
+  // 2. ADIM: Observer'ı anında başlat (DOMContentLoaded bekleme)
+  if (document.documentElement) {
     startObserver();
   } else {
     document.addEventListener('DOMContentLoaded', startObserver);

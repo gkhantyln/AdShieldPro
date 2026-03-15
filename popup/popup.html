@@ -305,6 +305,19 @@
                 <span id="pauseStatusText"></span>
             </div>
 
+            <h3 class="section-title" style="margin-top: 16px;" data-i18n="footballTitle">Futbol & Canlı Yayın Ayarları</h3>
+            <div class="football-settings-section" style="background: rgba(22, 101, 52, 0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(22, 101, 52, 0.3); display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11px; color: #e2e8f0; font-weight: 500;">Reklam Atlatma Süresi (sn)</span>
+                    <input type="number" id="inputAdSkipDuration" value="15" min="1" max="60" class="input-field" style="width: 50px; padding: 4px; font-size: 11px; margin: 0; text-align: center;" />
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11px; color: #e2e8f0; font-weight: 500;">Otomatik Tıklama Sayısı</span>
+                    <input type="number" id="inputAutoClickMax" value="1" min="1" max="10" class="input-field" style="width: 50px; padding: 4px; font-size: 11px; margin: 0; text-align: center;" />
+                </div>
+                <button class="btn-primary" id="btnSaveFootball" style="padding: 6px; font-size: 11px; background: #166534;">Ayarları Kaydet</button>
+            </div>
+
             <div class="about-section">
                 <p class="about-text" data-i18n="appName">AdShield Pro</p>
                 <p class="about-sub" data-i18n="appSub">YouTube & tüm siteler için gelişmiş reklam engelleme</p>

@@ -3,6 +3,8 @@ const STORAGE_KEY_PAUSE_UNTIL = 'pauseUntil';
 const STORAGE_KEY_CUSTOM_RULES = 'customRules';
 const STORAGE_KEY_WHITELIST = 'whitelist';
 const STORAGE_KEY_STATS = 'stats';
+const STORAGE_KEY_AD_SKIP_DURATION = 'adSkipDuration';
+const STORAGE_KEY_AUTO_CLICK_MAX = 'autoClickMax';
 const RULESET_IDS = ['yt_rules', 'general_rules'];
 const YT_MATCHES = [
   '*://*.youtube.com/*',
@@ -219,7 +221,9 @@ async function handleMessage(msg, sender) {
         [STORAGE_KEY_PAUSE_UNTIL]: 0,
         aiStats: { tokens: 0, blocked: 0 },
         cloudVersion: '1.0',
-        preferredLanguage: 'auto'
+        preferredLanguage: 'auto',
+        [STORAGE_KEY_AD_SKIP_DURATION]: 15,
+        [STORAGE_KEY_AUTO_CLICK_MAX]: 1
       });
       return {
         success: true,
@@ -233,8 +237,18 @@ async function handleMessage(msg, sender) {
         aiKeys: syncData.aiKeys,
         aiStats: localData.aiStats,
         cloudVersion: localData.cloudVersion,
-        preferredLanguage: localData.preferredLanguage
+        preferredLanguage: localData.preferredLanguage,
+        adSkipDuration: localData[STORAGE_KEY_AD_SKIP_DURATION],
+        autoClickMax: localData[STORAGE_KEY_AUTO_CLICK_MAX]
       };
+    }
+
+    case 'SET_FOOTBALL_SETTINGS': {
+      await chrome.storage.local.set({
+        [STORAGE_KEY_AD_SKIP_DURATION]: msg.adSkipDuration,
+        [STORAGE_KEY_AUTO_CLICK_MAX]: msg.autoClickMax
+      });
+      return { success: true };
     }
 
     case 'SET_LANGUAGE': {

@@ -23,17 +23,14 @@ Say goodbye to distractions and hello to a cleaner, faster, and safer internet.
 
 ## ✨ Key Features
 
-- **⚡ Zero-Footprint Performance:** The extension injects memory-friendly filtering scripts dynamically and instantly unloads them when turned OFF. Employs hardware-accelerated (`requestAnimationFrame`) algorithms instead of heavy loops (`setInterval`) to ensure CPU/RAM usage stays near zero.
-- **🚫 Advanced Ad Blocking:** Automatically blocks banners, pop-ups, video ads, and trackers.
-- **🛡️ Heuristic Anti-Tracking (New!):** Next-gen privacy shield blocks Canvas/Audio Fingerprinting, intercepts WebRTC leaks, and neutralizes invisible 1x1 tracking pixels and outbound beacon requests.
-- **🧠 AI-Powered Content Filter (New!):** Integrates with Google's Generative AI to semantically analyze text segments (news, articles) and automatically collapse clickbait or undisclosed "Sponsored" content. Includes a dynamic model fetcher (letting users pick from `gemini-1.5-pro` to `gemini-2.5-flash`) and a multi-API-key fallback system.
-- **☁️ Cloud-Based Rule Engine (New!):** Automatically fetches and updates global ad-blocking lists (EasyList + AdShield Cloud) 3 times a day via background alarms, ensuring zero-day protection against new ad formats.
-- **🔄 Advanced Sync Support:** Seamlessly synchronize your custom rules, AI keys, and whitelist across all your Chrome browsers using your Google account.
-- **🌐 Global i18n Support:** Fully translated interface (Turkish & English) with automatic regional detection and manual language override in settings.
-- **🎯 Smart Element Picker (Upgraded!):** Point and click to remove ANY element permanently. Features an intelligent hierarchical DOM traversing selector that analyzes parent nodes and siblings (`nth-of-type`) to create unbreakable CSS rules, actively avoiding dynamic or randomized framework classes.
-- **📺 YouTube Ad Defense:** Enjoy uninterrupted video streaming without pre-roll or mid-roll ads. Stops ads right at the network level.
-- **📊 Real-time Statistics:** Visualize how many ads and trackers have been blocked daily and per site.
-- **🏆 Gamification & Insights:** See exactly how much mobile data you've saved and how many hours of loading time you've reclaimed, calculating industry-standard weights dynamically on the dashboard.
+- **⚽ Live Stream Pro (New!):** Entegre "Nükleer" video atlatıcı sayesinde SelcukSports gibi canlı yayın sitelerindeki 15 saniyelik zorunlu reklamları 1 saniyenin altına indirir.
+- **⚡ Instant Cosmetic Block (New!):** Sayfa yüklenirken oluşan "reklam parlamasını" (1 saniyelik görünme) engellemek için kuralları `document_start` seviyesinde anında uygular.
+- **🖱️ Smart Auto-Play:** Yayın sitelerindeki "reklambanner" görsellerini ve play butonlarını otomatik algılayıp sizin yerinize tıklar, yayını saniyeler içinde başlatır.
+- **🛡️ Heuristic Anti-Tracking:** Next-gen privacy shield blocks Canvas/Audio Fingerprinting, intercepts WebRTC leaks, and neutralizes invisible 1x1 tracking pixels.
+- **🧠 AI-Powered Content Filter:** Integrates with Google's Generative AI to semantically analyze text segments (news, articles) and automatically collapse clickbait.
+- **☁️ Cloud-Based Rule Engine:** Automatically fetches and updates global ad-blocking lists 3 times a day via background alarms.
+- **🎯 Smart Element Picker:** Point and click to remove ANY element permanently with intelligent hierarchical DOM traversing.
+- **📺 YouTube Ad Defense:** Enjoy uninterrupted video streaming without pre-roll or mid-roll ads. 16x speed-skipping fallback included.
 - **🌑 Dark Mode UI:** A beautiful, modern, and eye-friendly dark interface.
 - **🔒 Privacy First:** No data collection. Your browsing history stays on your device.
 

@@ -115,5 +115,80 @@
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
   } catch(e) {}
+  
+  // 5. SelcukSports & Canlı Yayın Özel Yardımcısı (Main World)
+  let shieldConfig = { adSkipDuration: 15, autoClickMax: 1 };
+  let clickCount = 0;
+  let wasMutedByExtension = false;
+
+  window.addEventListener('__SET_SHIELD_CONFIG__', (e) => {
+    if (e.detail) {
+      shieldConfig = { ...shieldConfig, ...e.detail };
+    }
+  });
+
+  const handleFootballAds = (video) => {
+    const host = window.location.hostname;
+    const isTargetSite = host.includes('selcuk') || host.includes('scl') || host.includes('main.') || host.includes('uxsy') ||
+                         !!document.querySelector('.clappr-style') || !!document.querySelector('.clappr-ui');
+    
+    if (!isTargetSite) return;
+
+    // --- OTOMATİK BAŞLATICI ---
+    if (clickCount < shieldConfig.autoClickMax) {
+      const poster = document.querySelector('.player-poster[style*="reklambanner"]');
+      if (poster && poster.offsetParent !== null) { 
+        try {
+          const actualVideo = document.querySelector('video');
+          if (!actualVideo || actualVideo.paused) {
+            poster.click();
+            clickCount++; 
+          }
+        } catch(e) {}
+      }
+    }
+
+    // --- REKLAM ATLATICI ---
+    if (!video || !video.style) return;
+
+    if (video.currentTime > 0.01 && video.currentTime < shieldConfig.adSkipDuration) {
+      if (video.playbackRate < 10) video.playbackRate = 16.0;
+      if (!video.muted) {
+        video.muted = true;
+        wasMutedByExtension = true;
+      }
+      if (video.currentTime < (shieldConfig.adSkipDuration - 1)) {
+        try { video.currentTime = shieldConfig.adSkipDuration - 0.5; } catch(e) {}
+      }
+      video.style.opacity = '0.3';
+    } else if (video.currentTime >= shieldConfig.adSkipDuration || (video.currentTime === 0 && clickCount > 0)) {
+      if (video.playbackRate > 1) video.playbackRate = 1.0;
+      if (wasMutedByExtension && video.muted) {
+        video.muted = false;
+        wasMutedByExtension = false;
+      }
+      video.style.opacity = '1';
+    }
+
+    const skipBtn = document.querySelector('[class*="skip"], [id*="skip"], .clappr-ui button');
+    if (skipBtn && typeof skipBtn.click === 'function') {
+      skipBtn.click();
+    }
+  };
+
+  setInterval(() => {
+    const videos = document.querySelectorAll('video');
+    if (videos.length > 0) {
+      videos.forEach(handleFootballAds);
+    } else if (clickCount < shieldConfig.autoClickMax) {
+      const poster = document.querySelector('.player-poster[style*="reklambanner"]');
+      if (poster) handleFootballAds(null); 
+    }
+  }, 1000);
+
+  window.addEventListener('timeupdate', (e) => {
+    if (e.target.tagName === 'VIDEO') handleFootballAds(e.target);
+  }, true);
+  
 
 })();

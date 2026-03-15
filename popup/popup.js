@@ -295,6 +295,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (aiStatsDisplay) aiStatsDisplay.style.display = 'none';
     }
 
+    // Football settings
+    const inputAdSkipDuration = document.getElementById('inputAdSkipDuration');
+    const inputAutoClickMax = document.getElementById('inputAutoClickMax');
+    if (inputAdSkipDuration) inputAdSkipDuration.value = currentState.adSkipDuration || 15;
+    if (inputAutoClickMax) inputAutoClickMax.value = currentState.autoClickMax || 1;
+
     // Footer Status Message
     if (!enabled) {
       statusMessage.textContent = 'Eklenti devre dışı';
@@ -727,10 +733,36 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
   });
 
-  const selectLanguage = document.getElementById('selectLanguage');
   selectLanguage?.addEventListener('change', async () => {
-      await sendMsg({ type: 'SET_LANGUAGE', lang: selectLanguage.value });
-      await loadState();
+    await sendMsg({ type: 'SET_LANGUAGE', lang: selectLanguage.value });
+    await loadState();
+  });
+
+  // Save Football Settings
+  const btnSaveFootball = document.getElementById('btnSaveFootball');
+  btnSaveFootball?.addEventListener('click', async () => {
+    const inputAdSkipDuration = document.getElementById('inputAdSkipDuration');
+    const inputAutoClickMax = document.getElementById('inputAutoClickMax');
+    
+    const adDuration = parseInt(inputAdSkipDuration.value);
+    const clickMax = parseInt(inputAutoClickMax.value);
+    
+    btnSaveFootball.textContent = '...';
+    await sendMsg({ 
+        type: 'SET_FOOTBALL_SETTINGS', 
+        adSkipDuration: adDuration, 
+        autoClickMax: clickMax 
+    });
+    
+    btnSaveFootball.textContent = '✓ Kaydedildi';
+    btnSaveFootball.style.background = '#059669';
+    
+    setTimeout(() => {
+        btnSaveFootball.textContent = 'Ayarları Kaydet';
+        btnSaveFootball.style.background = '#166534';
+    }, 2000);
+    
+    await loadState();
   });
 
   // ── Init ─────────────────────────────────
