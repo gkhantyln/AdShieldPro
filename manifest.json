@@ -4,8 +4,7 @@
       "default_title": "AdShield Pro"
    },
    "background": {
-      "service_worker": "background/service_worker.js",
-      "type": "module"
+      "service_worker": "background/service_worker.js"
    },
    "content_scripts": [ {
       "all_frames": false,
@@ -24,7 +23,7 @@
          "path": "rules/rules_general.json"
       } ]
    },
-   "description": "AdShield Pro v2.0 - Custom rules, element picker, statistics panel and advanced ad blocking.",
+   "description": "__MSG_appDesc__",
    "host_permissions": [ "<all_urls>" ],
    "icons": {
       "128": "icons/icon128.png",
@@ -35,10 +34,11 @@
    },
    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA66MA7Ax/9bHGiFqW5c5JOxby+aU4J1YGT2mgbgeVtwBwQDE+evbzLQqXxeti3xIVn9sM8xI5c6u8J3yhIf5Qo97ejb4TxxZW11J0fSttTS93r/NItTRPrIRzOPJ5d4JZO+kK/xFTyQcySN+TglU8gSvIwhh585PtI54DluC2n3rCyqKnSiZrQ7KAREfK1WR7/3KtoI7RnVmYB02++z/sNi8eRQ8jIH38Ve9DAdTW4QxQ8x1wBZ14rWXSgdbfXszbh3yjmtFBOseOIatXlgs7tFK8BBO8vs/6ZHxR0NcVt7dFK0932zlOsTV+6GXeaEVC3aY25Gl4f0EOXKwT01ibDwIDAQAB",
    "manifest_version": 3,
-   "name": "AdShield Pro",
-   "permissions": [ "declarativeNetRequest", "declarativeNetRequestFeedback", "storage", "scripting", "activeTab", "tabs" ],
+   "name": "__MSG_appName__",
+   "default_locale": "tr",
+   "permissions": [ "declarativeNetRequest", "declarativeNetRequestFeedback", "storage", "scripting", "activeTab", "tabs", "alarms" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "2.0",
+   "version": "2.1",
    "web_accessible_resources": [ {
       "resources": [ "content/element-picker.css" ],
       "matches": [ "<all_urls>" ]

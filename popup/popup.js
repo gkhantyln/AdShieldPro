@@ -54,6 +54,46 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentState = {};
   let activeTabHostname = '';
 
+  // ── i18n Localization ───────────────────
+  async function localizeUI(forceLang = 'auto') {
+    let messages = null;
+    if (forceLang !== 'auto') {
+        try {
+            const url = chrome.runtime.getURL(`_locales/${forceLang}/messages.json`);
+            const res = await fetch(url);
+            messages = await res.json();
+        } catch(e) { console.error('Lang fetch error:', e); }
+    }
+
+    const getMsg = (key) => {
+        if (messages && messages[key]) return messages[key].message;
+        return chrome.i18n.getMessage(key);
+    };
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const message = getMsg(key);
+      if (message) {
+        if (el.children.length === 0) {
+            el.textContent = message;
+        } else {
+            for (let node of el.childNodes) {
+                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '') {
+                    node.textContent = message;
+                    break;
+                }
+            }
+        }
+      }
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      const message = getMsg(key);
+      if (message) el.placeholder = message;
+    });
+  }
+
   // ── Send message to background ───────────
   function sendMsg(msg) {
     return new Promise((resolve) => {
@@ -67,6 +107,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function loadState() {
     const res = await sendMsg({ type: 'GET_STATE' });
     if (res.success) currentState = res;
+
+    // Dil senkronizasyonu
+    const lang = currentState.preferredLanguage || 'auto';
+    await localizeUI(lang); 
 
     // Aktif sekme bilgisi
     const tabInfo = await sendMsg({ type: 'GET_ACTIVE_TAB_INFO' });
@@ -89,40 +133,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     statusDot.classList.toggle('off', !isActive);
     statusText.classList.toggle('off', !isActive);
     statusCard.classList.toggle('disabled', !isActive);
-
+ 
     if (!enabled) {
-      statusText.textContent = 'Devre Dışı';
+      statusText.textContent = chrome.i18n.getMessage('statusDisabled') || 'Devre Dışı';
     } else if (paused) {
-      statusText.textContent = 'Duraklatıldı';
+      statusText.textContent = chrome.i18n.getMessage('statusPaused') || 'Duraklatıldı';
     } else {
-      statusText.textContent = 'Aktif & Koruyor';
+      statusText.textContent = chrome.i18n.getMessage('statusActive') || 'Aktif & Koruyor';
+    }
+ 
+    // Cloud Version & Language Select
+    const selectLanguage = document.getElementById('selectLanguage');
+    if (selectLanguage) selectLanguage.value = currentState.preferredLanguage || 'auto';
+
+    const cloudVerText = document.getElementById('cloudUpdateText');
+    if (cloudVerText && currentState.cloudVersion) {
+        cloudVerText.textContent = (chrome.i18n.getMessage('versionLabel') || 'Sürüm') + ': ' + currentState.cloudVersion;
     }
 
     // Current site
     if (activeTabHostname) {
       currentSiteEl.textContent = activeTabHostname;
       currentSiteEl.style.display = 'block';
-
-      // inputDomain'e aktif sekme domain'ini yaz (otomatik)
+ 
       if (!inputDomain.value) {
         inputDomain.value = activeTabHostname;
       }
     } else {
       currentSiteEl.style.display = 'none';
     }
-
+ 
     // Whitelist button state
     const isWhitelisted = whitelist.includes(activeTabHostname);
     btnWhitelistSite.classList.toggle('active-wl', isWhitelisted);
-    whitelistBtnText.textContent = isWhitelisted ? 'Muafiyeti Kaldır' : 'Siteyi Muaf Tut';
-
+    whitelistBtnText.textContent = isWhitelisted ? (chrome.i18n.getMessage('removeWhitelist') || 'Muafiyeti Kaldır') : (chrome.i18n.getMessage('whitelistSite') || 'Siteyi Muaf Tut');
+ 
     // Pause button
     if (paused) {
       const remaining = Math.max(0, Math.ceil((pauseUntil - Date.now()) / 60000));
-      pauseBtnText.textContent = remaining + 'dk kaldı';
+      pauseBtnText.textContent = remaining + 'dk ' + (chrome.i18n.getMessage('remaining') || 'kaldı');
       btnPause.classList.add('active-wl');
     } else {
-      pauseBtnText.textContent = '30dk Duraklat';
+      pauseBtnText.textContent = chrome.i18n.getMessage('pause30') || '30dk Duraklat';
       btnPause.classList.remove('active-wl');
     }
 
@@ -608,13 +660,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     const key = inputAiKey.value.trim();
     const model = selectAiModel.value;
     if (key && model) {
-      // Send object instead of string
       await sendMsg({ type: 'ADD_AI_KEY', keyInfo: { key, model } });
       inputAiKey.value = '';
       btnFetchModels.style.display = 'block';
       aiModelGroup.style.display = 'none';
       await loadState();
     }
+  });
+
+  const btnUpdateCloud = document.getElementById('btnUpdateCloud');
+  btnUpdateCloud?.addEventListener('click', async () => {
+      btnUpdateCloud.textContent = '...';
+      const res = await sendMsg({ type: 'FETCH_CLOUD_RULES' });
+      if (res.success) {
+          btnUpdateCloud.textContent = '✓';
+          setTimeout(() => { 
+              const msg = chrome.i18n.getMessage('updateNow') || 'Güncelle';
+              btnUpdateCloud.textContent = msg; 
+          }, 2000);
+          await loadState();
+      } else {
+          btnUpdateCloud.textContent = '✕';
+          setTimeout(() => { 
+              const msg = chrome.i18n.getMessage('updateNow') || 'Güncelle';
+              btnUpdateCloud.textContent = msg; 
+          }, 2000);
+      }
+  });
+
+  const selectLanguage = document.getElementById('selectLanguage');
+  selectLanguage?.addEventListener('change', async () => {
+      await sendMsg({ type: 'SET_LANGUAGE', lang: selectLanguage.value });
+      await loadState();
   });
 
   // ── Init ─────────────────────────────────

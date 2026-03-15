@@ -18,8 +18,8 @@
                 </svg>
             </div>
             <div class="header-text">
-                <h1>AdShield Pro</h1>
-                <span class="version">v2.0 Pro</span>
+                <h1 data-i18n="appName">AdShield Pro</h1>
+                <span class="version">v2.1 Pro</span>
             </div>
             <label class="toggle-switch" id="mainToggle" title="Açma / Kapama">
                 <input type="checkbox" checked />
@@ -31,27 +31,27 @@
         <div class="status-card" id="statusCard">
             <div class="pulse-dot" id="statusDot"></div>
             <div class="status-info">
-                <span class="status-label">DURUM</span>
-                <span class="status-value" id="statusText">Aktif & Koruyor</span>
+                <span class="status-label" data-i18n="statusLabel">DURUM</span>
+                <span class="status-value" id="statusText" data-i18n="statusActive">Aktif & Koruyor</span>
             </div>
             <div class="current-site" id="currentSite"></div>
         </div>
 
         <!-- Tab Navigation -->
         <div class="tab-nav">
-            <button class="tab-btn active" data-tab="home">
+            <button class="tab-btn active" data-tab="home" data-i18n="homeTab">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Ana
             </button>
-            <button class="tab-btn" data-tab="rules">
+            <button class="tab-btn" data-tab="rules" data-i18n="rulesTab">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 Kurallar
             </button>
-            <button class="tab-btn" data-tab="stats">
+            <button class="tab-btn" data-tab="stats" data-i18n="statsTab">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 İstatistik
             </button>
-            <button class="tab-btn" data-tab="settings">
+            <button class="tab-btn" data-tab="settings" data-i18n="settingsTab">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                 Ayarlar
             </button>
@@ -111,8 +111,8 @@
                     <path d="M19 9l-2 0"/><path d="M19 15l-2 0"/>
                     <rect x="3" y="3" width="18" height="18" rx="2"/>
                 </svg>
-                <span>Sayfadan Reklam Seç</span>
-                <span class="picker-hint">Mouse ile seçin</span>
+                <span data-i18n="pickElement">Sayfadan Reklam Seç</span>
+                <span class="picker-hint" data-i18n="pickHint">Mouse ile seçin</span>
             </button>
 
             <!-- Quick Actions -->
@@ -141,12 +141,12 @@
                 <div style="display: flex; justify-content: space-between; align-items: baseline;">
                     <div style="display: flex; flex-direction: column;">
                         <span id="savedTimeValue" style="font-size: 18px; font-weight: 800; color: #facc15;">0 sn</span>
-                        <span style="font-size: 9px; color: #64748b; margin-top: -2px;">KAZANILAN VAKİT</span>
+                        <span style="font-size: 9px; color: #64748b; margin-top: -2px;" data-i18n="gamTime">KAZANILAN VAKİT</span>
                     </div>
                     <div style="width: 1px; height: 30px; background: rgba(255, 255, 255, 0.1);"></div>
                     <div style="display: flex; flex-direction: column; text-align: right;">
                         <span id="savedDataValue" style="font-size: 18px; font-weight: 800; color: #38bdf8;">0 MB</span>
-                        <span style="font-size: 9px; color: #64748b; margin-top: -2px;">KORUNAN KOTA</span>
+                        <span style="font-size: 9px; color: #64748b; margin-top: -2px;" data-i18n="gamData">KORUNAN KOTA</span>
                     </div>
                 </div>
                 <div style="font-size: 10px; color: #94a3b8; text-align: center; margin-top: 4px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 6px;">
@@ -159,26 +159,26 @@
         <div class="tab-content" id="tab-rules">
             <!-- Add Rule Form -->
             <div class="add-rule-section">
-                <h3 class="section-title">Yeni Kural Ekle</h3>
+                <h3 class="section-title" data-i18n="addRule">Yeni Kural Ekle</h3>
                 <div class="input-group">
-                    <input type="text" id="inputSelector" placeholder="CSS Seçici (örn: .ad-banner)" class="input-field" />
+                    <input type="text" id="inputSelector" placeholder="CSS Seçici (örn: .ad-banner)" class="input-field" data-i18n-placeholder="placeholderSelector" />
                 </div>
                 <div class="input-group">
-                    <input type="text" id="inputDomain" placeholder="Domain (boş = tüm siteler)" class="input-field" />
+                    <input type="text" id="inputDomain" placeholder="Domain (boş = tüm siteler)" class="input-field" data-i18n-placeholder="placeholderDomain" />
                 </div>
                 <div class="input-row">
                     <label class="checkbox-label">
                         <input type="checkbox" id="checkAllSites" />
-                        <span>Tüm sitelerde uygula</span>
+                        <span data-i18n="applyAllSites">Tüm sitelerde uygula</span>
                     </label>
-                    <button class="btn-primary" id="btnAddRule">+ Ekle</button>
+                    <button class="btn-primary" id="btnAddRule" data-i18n="addBtn">+ Ekle</button>
                 </div>
             </div>
 
             <!-- Rules List -->
             <div class="rules-list-section">
                 <div class="section-header">
-                    <h3 class="section-title">Özel Kurallar</h3>
+                    <h3 class="section-title" data-i18n="customRules">Özel Kurallar</h3>
                     <span class="rule-count" id="ruleCount">0</span>
                 </div>
                 <div class="rules-list" id="rulesList">
@@ -186,16 +186,16 @@
                         <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#475569" stroke-width="1.5">
                             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
                         </svg>
-                        <span>Henüz özel kural yok</span>
-                        <span class="empty-hint">Yukarıdan kural ekleyin veya "Sayfadan Reklam Seç" butonunu kullanın</span>
+                        <span data-i18n="noRules">Henüz özel kural yok</span>
+                        <span class="empty-hint" data-i18n="emptyHint">Yukarıdan kural ekleyin veya "Sayfadan Reklam Seç" butonunu kullanın</span>
                     </div>
                 </div>
             </div>
 
             <!-- Import/Export -->
             <div class="import-export">
-                <button class="btn-sm" id="btnExport">📤 Dışa Aktar</button>
-                <button class="btn-sm" id="btnImport">📥 İçe Aktar</button>
+                <button class="btn-sm" id="btnExport" data-i18n="export">📤 Dışa Aktar</button>
+                <button class="btn-sm" id="btnImport" data-i18n="import">📥 İçe Aktar</button>
                 <input type="file" id="fileImport" accept=".json" style="display:none" />
             </div>
         </div>
@@ -205,90 +205,109 @@
             <div class="stats-overview">
                 <div class="stats-big-number">
                     <span class="big-number" id="statsTotalBlocked">0</span>
-                    <span class="big-label">Toplam Engellenen</span>
+                    <span class="big-label" data-i18n="totalStatsLabel">Toplam Engellenen</span>
                 </div>
                 <div class="stats-today">
                     <span class="today-number" id="statsTodayBlocked">0</span>
-                    <span class="today-label">Bugün Engellenen</span>
+                    <span class="today-label" data-i18n="todayStatsLabel">Bugün Engellenen</span>
                 </div>
             </div>
 
-            <h3 class="section-title">Site Bazlı İstatistikler</h3>
+            <h3 class="section-title" data-i18n="statsByDomain">Site Bazlı İstatistikler</h3>
             <div class="domain-stats-list" id="domainStatsList">
                 <div class="empty-state">
-                    <span>Henüz veri yok</span>
+                    <span data-i18n="noData">Henüz veri yok</span>
                 </div>
             </div>
 
-            <button class="btn-danger-sm" id="btnResetStats">🗑️ İstatistikleri Sıfırla</button>
+            <button class="btn-danger-sm" id="btnResetStats" data-i18n="resetStats">🗑️ İstatistikleri Sıfırla</button>
         </div>
 
         <!-- Tab: Settings -->
         <div class="tab-content" id="tab-settings">
-            <h3 class="section-title" style="margin-top: 16px;">Yapay Zeka (AI) İçerik Filtresi</h3>
+            <h3 class="section-title" style="margin-top: 16px;" data-i18n="langTitle">Dil Seçimi (Language)</h3>
+            <div class="setting-item" style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 8px; border: 1px solid rgba(51, 65, 85, 0.5); display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 13px; color: #e2e8f0;" data-i18n="langLabel">Görünüm Dili</span>
+                <select id="selectLanguage" class="input-field" style="width: 100px; padding: 4px 8px; font-size: 12px; margin: 0; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <option value="auto" data-i18n="langAuto">Otomatik (Cihaz)</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 16px;" data-i18n="cloudTitle">Bulut Listeleri (Cloud Rules)</h3>
+            <div class="cloud-section" style="background: rgba(16, 185, 129, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 13px; font-weight: 600; color: #34d399;">EasyList + AdShield Cloud</span>
+                    <span style="font-size: 10px; color: #94a3b8;" id="cloudUpdateText">Sürüm: v2.1 (Güncel)</span>
+                </div>
+                <button class="btn-primary" id="btnUpdateCloud" style="padding: 6px 10px; font-size: 11px;" data-i18n="updateNow">Güncelle</button>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 16px;" data-i18n="aiFilterTitle">Yapay Zeka (AI) İçerik Filtresi</h3>
             <div class="ai-filter-section" style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 8px; border: 1px solid rgba(51, 65, 85, 0.5);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <span style="font-size: 13px; color: #e2e8f0; font-weight: 500;">AI Filtresi (Gemini Modelleri)</span>
+                    <span style="font-size: 13px; color: #e2e8f0; font-weight: 500;" data-i18n="aiFilterModels">AI Filtresi (Gemini Modelleri)</span>
                     <label class="toggle-switch" title="AI Filtresi Aç/Kapat" style="transform: scale(0.85); margin: 0;">
                         <input type="checkbox" id="aiToggle" />
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
                 <div class="input-group" style="margin-top: 8px;">
-                    <input type="password" id="inputAiKey" placeholder="Gemini API Key Girin" class="input-field" style="font-size: 11px; padding: 6px 10px;" />
-                    <button class="btn-primary btn-sm-inline" id="btnFetchModels" style="padding: 6px 10px; font-size: 11px; white-space: nowrap;">Modelleri Bul</button>
+                    <input type="password" id="inputAiKey" placeholder="Gemini API Key Girin" class="input-field" style="font-size: 11px; padding: 6px 10px;" data-i18n-placeholder="placeholderAiKey" />
+                    <button class="btn-primary btn-sm-inline" id="btnFetchModels" style="padding: 6px 10px; font-size: 11px; white-space: nowrap;" data-i18n="findModels">Modelleri Bul</button>
                 </div>
                 <div class="input-group" id="aiModelGroup" style="margin-top: 4px; display: none;">
                     <select id="selectAiModel" class="input-field" style="font-size: 11px; padding: 6px 10px; flex: 1; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px;">
                     </select>
-                    <button class="btn-primary btn-sm-inline" id="btnAddAiKey" style="padding: 6px 10px; font-size: 11px;">Ekle</button>
+                    <button class="btn-primary btn-sm-inline" id="btnAddAiKey" style="padding: 6px 10px; font-size: 11px;" data-i18n="addBtn">Ekle</button>
                 </div>
                 <div id="aiKeysList" style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
                     <!-- API Keys will be listed here -->
                 </div>
                 <div id="aiStatsDisplay" style="margin-top: 8px; display: none; justify-content: space-between; align-items: center; padding: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px;">
                     <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                        <span style="font-size: 10px; color: #94a3b8;">Tüketilen Token</span>
+                        <span style="font-size: 10px; color: #94a3b8;" data-i18n="statToken">Tüketilen Token</span>
                         <span id="aiTokenCount" style="font-size: 14px; font-weight: bold; color: #60a5fa; font-family: monospace;">0</span>
                     </div>
                     <div style="width: 1px; height: 24px; background: rgba(59, 130, 246, 0.2);"></div>
                     <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                        <span style="font-size: 10px; color: #94a3b8;">Engellenen Clickbait</span>
+                        <span style="font-size: 10px; color: #94a3b8;" data-i18n="statBlocked">Engellenen Clickbait</span>
                         <span id="aiBlockedCount" style="font-size: 14px; font-weight: bold; color: #34d399; font-family: monospace;">0</span>
                     </div>
                 </div>
-                <div style="font-size: 10px; color: #94a3b8; margin-top: 8px; line-height: 1.4;">
+                <div style="font-size: 10px; color: #94a3b8; margin-top: 8px; line-height: 1.4;" data-i18n="aiFilterDesc">
                     Clickbait haberleri ve gizli reklam bölümlerini gizler. Çoklu key-model ikilisi eklerseniz, biri kota aşımına (429) ulaşınca diğerine geçer.
                 </div>
             </div>
 
-            <h3 class="section-title" style="margin-top: 16px;">Beyaz Liste (Muaf Siteler)</h3>
+            <h3 class="section-title" style="margin-top: 16px;" data-i18n="whitelistTitle">Beyaz Liste (Muaf Siteler)</h3>
             <div class="whitelist-section">
                 <div class="input-group">
-                    <input type="text" id="inputWhitelist" placeholder="Domain ekle (örn: example.com)" class="input-field" />
-                    <button class="btn-primary btn-sm-inline" id="btnAddWhitelist">Ekle</button>
+                    <input type="text" id="inputWhitelist" placeholder="Domain ekle (örn: example.com)" class="input-field" data-i18n-placeholder="placeholderWhitelist" />
+                    <button class="btn-primary btn-sm-inline" id="btnAddWhitelist" data-i18n="addBtn">Ekle</button>
                 </div>
                 <div class="whitelist-items" id="whitelistItems">
                     <div class="empty-state" id="emptyWhitelist">
-                        <span>Beyaz liste boş</span>
+                        <span data-i18n="whitelistEmpty">Beyaz liste boş</span>
                     </div>
                 </div>
             </div>
 
-            <h3 class="section-title" style="margin-top: 16px;">Geçici Duraklat</h3>
+            <h3 class="section-title" style="margin-top: 16px;" data-i18n="pauseTitle">Geçici Duraklat</h3>
             <div class="pause-options">
-                <button class="pause-btn" data-minutes="30">30 dk</button>
-                <button class="pause-btn" data-minutes="60">1 saat</button>
-                <button class="pause-btn" data-minutes="180">3 saat</button>
-                <button class="pause-btn" id="btnResumeNow" style="display:none;">▶ Devam Et</button>
+                <button class="pause-btn" data-minutes="30" data-i18n="min30">30 dk</button>
+                <button class="pause-btn" data-minutes="60" data-i18n="hour1">1 saat</button>
+                <button class="pause-btn" data-minutes="180" data-i18n="hour3">3 saat</button>
+                <button class="pause-btn" id="btnResumeNow" style="display:none;" data-i18n="resumeNow">▶ Devam Et</button>
             </div>
             <div class="pause-status" id="pauseStatus" style="display:none;">
                 <span id="pauseStatusText"></span>
             </div>
 
             <div class="about-section">
-                <p class="about-text">AdShield Pro v2.0</p>
-                <p class="about-sub">YouTube & tüm siteler için gelişmiş reklam engelleme</p>
+                <p class="about-text" data-i18n="appName">AdShield Pro</p>
+                <p class="about-sub" data-i18n="appSub">YouTube & tüm siteler için gelişmiş reklam engelleme</p>
             </div>
         </div>
 

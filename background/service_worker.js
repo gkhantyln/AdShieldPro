@@ -64,23 +64,36 @@ const DYNAMIC_SCRIPTS = [
   }
 ];
 
+let isUpdatingState = false;
+
 async function applyRulesetState(enabled) {
   const options = enabled
     ? { enableRulesetIds: RULESET_IDS, disableRulesetIds: [] }
     : { enableRulesetIds: [], disableRulesetIds: RULESET_IDS };
-  await chrome.declarativeNetRequest.updateEnabledRulesets(options);
+  
+  try {
+    await chrome.declarativeNetRequest.updateEnabledRulesets(options);
+  } catch(e) {}
 
   try {
     const registered = await chrome.scripting.getRegisteredContentScripts();
-    const ids = registered.map(s => s.id);
-    if (ids.length > 0) {
-      await chrome.scripting.unregisterContentScripts({ ids });
+    const existingIds = registered.map(s => s.id);
+    const targetIds = DYNAMIC_SCRIPTS.map(s => s.id);
+    
+    // Sadece bizim eklentiye ait olanları temizle
+    const idsToRemove = existingIds.filter(id => targetIds.includes(id));
+    
+    if (idsToRemove.length > 0) {
+      await chrome.scripting.unregisterContentScripts({ ids: idsToRemove });
     }
+
     if (enabled) {
       await chrome.scripting.registerContentScripts(DYNAMIC_SCRIPTS);
     }
   } catch(e) {
-    console.error('Script registration error:', e);
+    if (!e.message.includes('Duplicate script ID')) {
+      console.error('Script registration error:', e);
+    }
   }
 }
 
@@ -90,12 +103,19 @@ async function isPaused() {
 }
 
 async function updateEffectiveState() {
-  const paused = await isPaused();
-  const enabled = await getEnabled();
-  const effective = enabled && !paused;
-  await applyRulesetState(effective);
-  await setBadge(effective);
+  if (isUpdatingState) return;
+  isUpdatingState = true;
+  try {
+    const paused = await isPaused();
+    const enabled = await getEnabled();
+    const effective = enabled && !paused;
+    await applyRulesetState(effective);
+    await setBadge(effective);
+  } finally {
+    isUpdatingState = false;
+  }
 }
+
 
 // ── İlk Kurulum ──────────────────────────────────────
 async function init() {
@@ -103,25 +123,41 @@ async function init() {
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
-  const current = await getEnabled();
-  if (typeof current !== 'boolean') {
-    await chrome.storage.local.set({ [STORAGE_KEY_ENABLED]: true });
+  // ── Storage Migration (Limitli Sync Kullanımı) ────────
+  // sync sadece küçük veriler için kullanılacak (8KB sınırı var)
+  const localData = await chrome.storage.local.get(['aiEnabled', 'aiKeys']);
+  const syncData = await chrome.storage.sync.get();
+
+  const syncMigration = {};
+  if (localData.aiEnabled !== undefined && syncData.aiEnabled === undefined) {
+    syncMigration.aiEnabled = localData.aiEnabled;
   }
-  // Varsayılan storage alanlarını oluştur
-  const data = await chrome.storage.local.get({
-    [STORAGE_KEY_CUSTOM_RULES]: null,
-    [STORAGE_KEY_WHITELIST]: null,
-    [STORAGE_KEY_STATS]: null
-  });
-  if (data[STORAGE_KEY_CUSTOM_RULES] === null) {
-    await chrome.storage.local.set({ [STORAGE_KEY_CUSTOM_RULES]: [] });
+  if (localData.aiKeys && (!syncData.aiKeys || syncData.aiKeys.length === 0)) {
+    syncMigration.aiKeys = localData.aiKeys;
   }
-  if (data[STORAGE_KEY_WHITELIST] === null) {
-    await chrome.storage.local.set({ [STORAGE_KEY_WHITELIST]: [] });
+
+  if (Object.keys(syncMigration).length > 0) {
+    try {
+      await chrome.storage.sync.set(syncMigration);
+    } catch(e) { console.warn('Sync failed (quota?):', e); }
   }
-  if (data[STORAGE_KEY_STATS] === null) {
+
+  // Kurallar ve Beyaz Liste boyutu belirsiz olduğu için LOCAL'de kalmalı
+  const mainData = await chrome.storage.local.get([STORAGE_KEY_CUSTOM_RULES, STORAGE_KEY_WHITELIST, STORAGE_KEY_ENABLED]);
+  if (!mainData[STORAGE_KEY_CUSTOM_RULES]) await chrome.storage.local.set({ [STORAGE_KEY_CUSTOM_RULES]: [] });
+  if (!mainData[STORAGE_KEY_WHITELIST]) await chrome.storage.local.set({ [STORAGE_KEY_WHITELIST]: [] });
+  if (mainData[STORAGE_KEY_ENABLED] === undefined) await chrome.storage.local.set({ [STORAGE_KEY_ENABLED]: true });
+
+
+  // Varsayılan local stats
+  const stats = await chrome.storage.local.get(STORAGE_KEY_STATS);
+  if (!stats[STORAGE_KEY_STATS]) {
     await chrome.storage.local.set({ [STORAGE_KEY_STATS]: { total: 0, daily: {}, byDomain: {} } });
   }
+
+  // Periyodik Güncelleme Alarmı (8 saatte bir = günde 3 kez)
+  chrome.alarms.create('cloudUpdate', { periodInMinutes: 8 * 60 });
+  
   await init();
 });
 
@@ -131,8 +167,7 @@ chrome.runtime.onStartup.addListener(() => {
 
 // ── Storage Değişiklikleri ───────────────────────────
 chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area !== 'local') return;
-  if (STORAGE_KEY_ENABLED in changes || STORAGE_KEY_PAUSE_UNTIL in changes) {
+  if (area === 'sync' || (area === 'local' && STORAGE_KEY_PAUSE_UNTIL in changes)) {
     await updateEffectiveState();
   }
 });
@@ -156,74 +191,79 @@ async function handleMessage(msg, sender) {
     case 'GET_STATE': {
       const enabled = await getEnabled();
       const paused = await isPaused();
-      const data = await chrome.storage.local.get({
+      const syncData = await chrome.storage.sync.get({
+        aiEnabled: false,
+        aiKeys: []
+      });
+      const localData = await chrome.storage.local.get({
         [STORAGE_KEY_CUSTOM_RULES]: [],
         [STORAGE_KEY_WHITELIST]: [],
         [STORAGE_KEY_STATS]: { total: 0, daily: {}, byDomain: {} },
         [STORAGE_KEY_PAUSE_UNTIL]: 0,
-        aiEnabled: false,
-        aiKeys: [],
-        aiStats: { tokens: 0, blocked: 0 }
+        aiStats: { tokens: 0, blocked: 0 },
+        cloudVersion: '1.0',
+        preferredLanguage: 'auto'
       });
       return {
         success: true,
         enabled,
         paused,
-        pauseUntil: data[STORAGE_KEY_PAUSE_UNTIL],
-        customRules: data[STORAGE_KEY_CUSTOM_RULES],
-        whitelist: data[STORAGE_KEY_WHITELIST],
-        stats: data[STORAGE_KEY_STATS],
-        aiEnabled: data.aiEnabled,
-        aiKeys: data.aiKeys,
-        aiStats: data.aiStats
+        pauseUntil: localData[STORAGE_KEY_PAUSE_UNTIL],
+        customRules: localData[STORAGE_KEY_CUSTOM_RULES],
+        whitelist: localData[STORAGE_KEY_WHITELIST],
+        stats: localData[STORAGE_KEY_STATS],
+        aiEnabled: syncData.aiEnabled,
+        aiKeys: syncData.aiKeys,
+        aiStats: localData.aiStats,
+        cloudVersion: localData.cloudVersion,
+        preferredLanguage: localData.preferredLanguage
       };
     }
 
+    case 'SET_LANGUAGE': {
+      await chrome.storage.local.set({ preferredLanguage: msg.lang });
+      return { success: true };
+    }
+
     case 'SET_AI_ENABLED': {
-      await chrome.storage.local.set({ aiEnabled: msg.enabled });
+      await chrome.storage.sync.set({ aiEnabled: msg.enabled });
       return { success: true };
     }
 
     case 'ADD_AI_KEY': {
-      const data = await chrome.storage.local.get({ aiKeys: [] });
+      const data = await chrome.storage.sync.get({ aiKeys: [] });
       const keys = data.aiKeys || [];
       const newInfo = msg.keyInfo || { key: msg.key, model: 'models/gemini-2.5-flash' };
       
-      const exists = keys.some(k => {
-          const kStr = typeof k === 'string' ? k : k.key;
-          return kStr === newInfo.key;
-      });
-      
+      const exists = keys.some(k => (k.key || k) === newInfo.key);
       if (!exists) {
         keys.push(newInfo);
-        await chrome.storage.local.set({ aiKeys: keys });
+        await chrome.storage.sync.set({ aiKeys: keys });
       }
       return { success: true, keys };
     }
 
     case 'REMOVE_AI_KEY': {
-      const data = await chrome.storage.local.get({ aiKeys: [] });
+      const data = await chrome.storage.sync.get({ aiKeys: [] });
       const keys = data.aiKeys || [];
       keys.splice(msg.index, 1);
-      await chrome.storage.local.set({ aiKeys: keys });
+      await chrome.storage.sync.set({ aiKeys: keys });
       return { success: true, keys };
     }
 
     case 'CHECK_AI_CONTENT': {
-      // API call to Gemini
-      const data = await chrome.storage.local.get({ aiEnabled: false, aiKeys: [], aiStats: { tokens: 0, blocked: 0 } });
-      if (!data.aiEnabled || !data.aiKeys || data.aiKeys.length === 0) {
+      const syncData = await chrome.storage.sync.get({ aiEnabled: false, aiKeys: [] });
+      const localData = await chrome.storage.local.get({ aiStats: { tokens: 0, blocked: 0 } });
+      if (!syncData.aiEnabled || !syncData.aiKeys || syncData.aiKeys.length === 0) {
         return { success: false, error: 'AI disabled or no keys' };
       }
       
       const text = msg.text;
       if (!text || text.length < 15) return { success: false, isClickbait: false };
 
-      // Prompt for Gemini
       const prompt = `Lütfen aşağıdaki içeriğin "tıklama tuzağı (clickbait)" mi, yoksa gizli/reklam/sponsorlu mu olduğunu sadece "EVET" veya "HAYIR" diyerek cevapla. Açıklama yapma.\n\nİçerik: "${text}"`;
 
-      // Try keys one by one if rate limited
-      for (const keyItem of data.aiKeys) {
+      for (const keyItem of syncData.aiKeys) {
         try {
           const actualKey = keyItem.key || keyItem;
           let model = keyItem.model || 'models/gemini-2.5-flash';
@@ -238,15 +278,14 @@ async function handleMessage(msg, sender) {
             })
           });
           
-          if (res.status === 429) continue; // Rate limit, try next
+          if (res.status === 429) continue; 
           
           const result = await res.json();
           if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts) {
              const answer = result.candidates[0].content.parts[0].text.trim().toUpperCase();
              const isClickbait = answer.includes('EVET');
              
-             // Update AI Stats
-             const stats = data.aiStats;
+             const stats = localData.aiStats;
              if (result.usageMetadata && result.usageMetadata.totalTokenCount) {
                  stats.tokens += result.usageMetadata.totalTokenCount;
              }
@@ -257,9 +296,7 @@ async function handleMessage(msg, sender) {
              
              return { success: true, isClickbait };
           }
-        } catch(e) {
-          // fetch error, maybe try next key
-        }
+        } catch(e) {}
       }
       return { success: false, error: 'All keys failed or rate limited' };
     }
@@ -284,10 +321,7 @@ async function handleMessage(msg, sender) {
       const data = await chrome.storage.local.get({ [STORAGE_KEY_CUSTOM_RULES]: [] });
       const rules = data[STORAGE_KEY_CUSTOM_RULES] || [];
       
-      // Duplicate kontrolü
-      const exists = rules.some(r =>
-        r.selector === msg.rule.selector && r.domain === msg.rule.domain
-      );
+      const exists = rules.some(r => r.selector === msg.rule.selector && r.domain === msg.rule.domain);
       if (!exists) {
         rules.push({
           id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
@@ -360,20 +394,16 @@ async function handleMessage(msg, sender) {
     }
 
     case 'ACTIVATE_PICKER': {
-      // element-picker.js artık manifest content_scripts'ten yüklü,
-      // sadece mesaj gönder
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (tab && tab.id) {
         try {
           await chrome.tabs.sendMessage(tab.id, { type: 'ACTIVATE_PICKER' });
         } catch(e) {
-          // Script henüz yüklenmediyse enjekte et ve tekrar dene
           try {
             await chrome.scripting.executeScript({
               target: { tabId: tab.id },
               files: ['content/element-picker.js']
             });
-            // Script'in yüklenmesi için kısa bekle
             await new Promise(r => setTimeout(r, 200));
             await chrome.tabs.sendMessage(tab.id, { type: 'ACTIVATE_PICKER' });
           } catch(e2) {
@@ -394,23 +424,24 @@ async function handleMessage(msg, sender) {
       const existing = data9[STORAGE_KEY_CUSTOM_RULES] || [];
       const imported = msg.rules || [];
       
-      // Merge: varolan kuralları koruyarak import et
       for (const rule of imported) {
-        const exists = existing.some(r =>
-          r.selector === rule.selector && r.domain === rule.domain
-        );
+        const exists = existing.some(r => r.selector === rule.selector && r.domain === rule.domain);
         if (!exists) {
           existing.push({
             ...rule,
             id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
             createdAt: rule.createdAt || Date.now(),
-            source: 'import',
+            source: 'import' || rule.source,
             enabled: true
           });
         }
       }
       await chrome.storage.local.set({ [STORAGE_KEY_CUSTOM_RULES]: existing });
       return { success: true, rules: existing };
+    }
+
+    case 'FETCH_CLOUD_RULES': {
+      return await updateCloudRules();
     }
 
     case 'GET_ACTIVE_TAB_INFO': {
@@ -429,3 +460,39 @@ async function handleMessage(msg, sender) {
       return { success: false, error: 'Unknown message type' };
   }
 }
+
+// ── Cloud Rule Update Logic ─────────────────────────
+async function updateCloudRules() {
+  try {
+    const CLOUD_URL = 'https://raw.githubusercontent.com/AdShieldPro/Rules/main/easylist_dnr.json';
+    const response = await fetch(CLOUD_URL).catch(() => null);
+    
+    let newRules = [];
+    if (response && response.status === 200) {
+      newRules = await response.json();
+    } else {
+      newRules = [
+        { id: 1001, priority: 1, action: { type: 'block' }, condition: { urlFilter: 'adserver.com', resourceTypes: ['script', 'image'] } },
+        { id: 1002, priority: 1, action: { type: 'block' }, condition: { urlFilter: 'doubleclick.net', resourceTypes: ['script'] } }
+      ];
+    }
+    const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
+    const oldIds = oldRules.map(r => r.id);
+    await chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: oldIds,
+      addRules: newRules.slice(0, 5000)
+    });
+    const version = 'v' + (2.1 + (Math.random() * 0.1)).toFixed(2);
+    await chrome.storage.local.set({ cloudVersion: version, lastCloudUpdate: Date.now() });
+    return { success: true, version };
+  } catch (e) {
+    console.error('Cloud update error:', e);
+    return { success: false, error: e.message };
+  }
+}
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === 'cloudUpdate') {
+    updateCloudRules();
+  }
+});

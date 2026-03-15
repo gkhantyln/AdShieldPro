@@ -1,11 +1,11 @@
 <div align="center">
 
-# 🛡️ AdShield Pro v2.0
+# 🛡️ AdShield Pro v2.1
 ### The Ultimate Ad Blocking Experience
 
 <img alt="image.png" data-hpc="true" src="https://github.com/gkhantyln/AdShieldPro/blob/main/image.png" style="max-width: 100%;">
 
-[![Version](https://img.shields.io/badge/version-2.0%20Pro-blue.svg?style=for-the-badge)](https://github.com/gkhantyln/AdShieldPro)
+[![Version](https://img.shields.io/badge/version-2.1-blue.svg?style=for-the-badge)](https://github.com/gkhantyln/AdShieldPro)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Chrome](https://img.shields.io/badge/Chrome-Extension-4285F4.svg?style=for-the-badge&logo=google-chrome&logoColor=white)](https://chrome.google.com/webstore)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
@@ -27,6 +27,9 @@ Say goodbye to distractions and hello to a cleaner, faster, and safer internet.
 - **🚫 Advanced Ad Blocking:** Automatically blocks banners, pop-ups, video ads, and trackers.
 - **🛡️ Heuristic Anti-Tracking (New!):** Next-gen privacy shield blocks Canvas/Audio Fingerprinting, intercepts WebRTC leaks, and neutralizes invisible 1x1 tracking pixels and outbound beacon requests.
 - **🧠 AI-Powered Content Filter (New!):** Integrates with Google's Generative AI to semantically analyze text segments (news, articles) and automatically collapse clickbait or undisclosed "Sponsored" content. Includes a dynamic model fetcher (letting users pick from `gemini-1.5-pro` to `gemini-2.5-flash`) and a multi-API-key fallback system.
+- **☁️ Cloud-Based Rule Engine (New!):** Automatically fetches and updates global ad-blocking lists (EasyList + AdShield Cloud) 3 times a day via background alarms, ensuring zero-day protection against new ad formats.
+- **🔄 Advanced Sync Support:** Seamlessly synchronize your custom rules, AI keys, and whitelist across all your Chrome browsers using your Google account.
+- **🌐 Global i18n Support:** Fully translated interface (Turkish & English) with automatic regional detection and manual language override in settings.
 - **🎯 Smart Element Picker (Upgraded!):** Point and click to remove ANY element permanently. Features an intelligent hierarchical DOM traversing selector that analyzes parent nodes and siblings (`nth-of-type`) to create unbreakable CSS rules, actively avoiding dynamic or randomized framework classes.
 - **📺 YouTube Ad Defense:** Enjoy uninterrupted video streaming without pre-roll or mid-roll ads. Stops ads right at the network level.
 - **📊 Real-time Statistics:** Visualize how many ads and trackers have been blocked daily and per site.
