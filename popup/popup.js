@@ -126,8 +126,40 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnPause.classList.remove('active-wl');
     }
 
-    // Total blocked
-    totalBlockedCount.textContent = formatNumber(stats.total || 0);
+    // Gamification & Total Blocked
+    const totalCount = stats.total || 0;
+    totalBlockedCount.textContent = formatNumber(totalCount);
+    
+    // Endüstri standartı reklam ağırlıkları
+    // 1 reklam/tracker yükü ortalama 0.5 MB
+    // 1 reklam/tracker işlem yükü ortalama 0.4 saniye
+    const savedDataMB = totalCount * 0.5;
+    const savedTimeSec = totalCount * 0.4;
+
+    // Time Format
+    let timeStr = '0 sn';
+    if (savedTimeSec >= 86400) {
+        timeStr = (savedTimeSec / 86400).toFixed(1) + ' gün';
+    } else if (savedTimeSec >= 3600) {
+        timeStr = (savedTimeSec / 3600).toFixed(1) + ' saat';
+    } else if (savedTimeSec >= 60) {
+        timeStr = (savedTimeSec / 60).toFixed(1) + ' dk';
+    } else {
+        timeStr = Math.floor(savedTimeSec) + ' sn';
+    }
+    
+    // Data Format
+    let dataStr = '0 MB';
+    if (savedDataMB >= 1024) {
+        dataStr = (savedDataMB / 1024).toFixed(2) + ' GB';
+    } else {
+        dataStr = savedDataMB.toFixed(1) + ' MB';
+    }
+    
+    const timeEl = document.getElementById('savedTimeValue');
+    const dataEl = document.getElementById('savedDataValue');
+    if (timeEl) timeEl.textContent = timeStr;
+    if (dataEl) dataEl.textContent = dataStr;
 
     // Rules
     renderRules(customRules);

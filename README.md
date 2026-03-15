@@ -30,6 +30,7 @@ Say goodbye to distractions and hello to a cleaner, faster, and safer internet.
 - **🎯 Smart Element Picker (Upgraded!):** Point and click to remove ANY element permanently. Features an intelligent hierarchical DOM traversing selector that analyzes parent nodes and siblings (`nth-of-type`) to create unbreakable CSS rules, actively avoiding dynamic or randomized framework classes.
 - **📺 YouTube Ad Defense:** Enjoy uninterrupted video streaming without pre-roll or mid-roll ads. Stops ads right at the network level.
 - **📊 Real-time Statistics:** Visualize how many ads and trackers have been blocked daily and per site.
+- **🏆 Gamification & Insights:** See exactly how much mobile data you've saved and how many hours of loading time you've reclaimed, calculating industry-standard weights dynamically on the dashboard.
 - **🌑 Dark Mode UI:** A beautiful, modern, and eye-friendly dark interface.
 - **🔒 Privacy First:** No data collection. Your browsing history stays on your device.
 

@@ -131,9 +131,27 @@
                 </button>
             </div>
 
-            <div class="total-blocked" id="totalBlocked">
-                <span class="total-number" id="totalBlockedCount">0</span>
-                <span class="total-label">toplam engellenen reklam</span>
+            <div class="gamification-panel" id="gamificationPanel" style="margin-top: 16px; background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(51, 65, 85, 0.5); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Zaman ve Kota Tasarrufu</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span id="savedTimeValue" style="font-size: 18px; font-weight: 800; color: #facc15;">0 sn</span>
+                        <span style="font-size: 9px; color: #64748b; margin-top: -2px;">KAZANILAN VAKİT</span>
+                    </div>
+                    <div style="width: 1px; height: 30px; background: rgba(255, 255, 255, 0.1);"></div>
+                    <div style="display: flex; flex-direction: column; text-align: right;">
+                        <span id="savedDataValue" style="font-size: 18px; font-weight: 800; color: #38bdf8;">0 MB</span>
+                        <span style="font-size: 9px; color: #64748b; margin-top: -2px;">KORUNAN KOTA</span>
+                    </div>
+                </div>
+                <div style="font-size: 10px; color: #94a3b8; text-align: center; margin-top: 4px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 6px;">
+                    Toplam <span id="totalBlockedCount" style="color: #cbd5e1; font-weight: bold;">0</span> zararlı içerik durduruldu
+                </div>
             </div>
         </div>
 
