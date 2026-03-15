@@ -58,5 +58,7 @@
   "gamTitle": { "message": "Zaman ve Kota Tasarrufu" },
   "gamTime": { "message": "KAZANILAN VAKİT" },
   "gamData": { "message": "KORUNAN KOTA" },
-  "totalStopped": { "message": "Toplam $count$ zararlı içerik durduruldu", "placeholders": { "count": { "content": "$1" } } }
+  "totalStopped": { "message": "Toplam $count$ zararlı içerik durduruldu", "placeholders": { "count": { "content": "$1" } } },
+  "protected": { "message": "Korunuyor" },
+  "unprotected": { "message": "Korunmuyor" }
 }

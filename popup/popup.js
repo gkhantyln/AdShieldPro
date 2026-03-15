@@ -21,6 +21,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnPause = document.getElementById('btnPause');
   const pauseBtnText = document.getElementById('pauseBtnText');
   const totalBlockedCount = document.getElementById('totalBlockedCount');
+  const ytStatus = document.getElementById('ytStatus');
+  const allSitesStatus = document.getElementById('allSitesStatus');
+  const ytBox = document.getElementById('ytBox');
+  const allSitesBox = document.getElementById('allSitesBox');
+  const heuristicBadge = document.getElementById('heuristicBadge');
 
   // Rules tab
   const inputSelector = document.getElementById('inputSelector');
@@ -141,6 +146,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       statusText.textContent = chrome.i18n.getMessage('statusActive') || 'Aktif & Koruyor';
     }
+
+    // YouTube and All Sites Home Status
+    const protectedText = chrome.i18n.getMessage('protected') || 'Korunuyor';
+    const unprotectedText = chrome.i18n.getMessage('unprotected') || 'Korunmuyor';
+    
+    if (ytStatus) {
+      ytStatus.textContent = isActive ? protectedText : unprotectedText;
+      ytStatus.classList.toggle('text-green', isActive);
+      ytStatus.classList.toggle('text-red', !isActive);
+    }
+    if (ytBox) {
+      ytBox.classList.toggle('glow-green', isActive);
+      ytBox.style.opacity = isActive ? '1' : '0.6';
+    }
+    
+    if (allSitesStatus) {
+      allSitesStatus.textContent = isActive ? protectedText : unprotectedText;
+      allSitesStatus.classList.toggle('text-blue', isActive);
+      allSitesStatus.classList.toggle('text-red', !isActive);
+    }
+    if (allSitesBox) {
+      allSitesBox.classList.toggle('glow-blue', isActive);
+      allSitesBox.style.opacity = isActive ? '1' : '0.6';
+    }
+
+    if (heuristicBadge) {
+      heuristicBadge.style.display = isActive ? 'flex' : 'none';
+    }
+
+    if (btnPicker) {
+      btnPicker.disabled = !isActive;
+      btnPicker.style.opacity = isActive ? '1' : '0.5';
+      btnPicker.style.cursor = isActive ? 'pointer' : 'not-allowed';
+    }
  
     // Cloud Version & Language Select
     const selectLanguage = document.getElementById('selectLanguage');
@@ -243,7 +282,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const aiTokenCount = document.getElementById('aiTokenCount');
     const aiBlockedCount = document.getElementById('aiBlockedCount');
 
-    if (aiEnabled && aiKeys.length > 0) {
+    if (aiEnabled && aiKeys.length > 0 && isActive) {
       if (aiBadge) aiBadge.style.display = 'flex';
       
       if (aiStatsDisplay) {

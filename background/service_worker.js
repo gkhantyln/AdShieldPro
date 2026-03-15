@@ -73,6 +73,20 @@ async function applyRulesetState(enabled) {
   
   try {
     await chrome.declarativeNetRequest.updateEnabledRulesets(options);
+    
+    // Cloud/Dynamic kuralları da temizle/ekle
+    if (!enabled) {
+      const dynamicRules = await chrome.declarativeNetRequest.getDynamicRules();
+      const dynamicIds = dynamicRules.map(r => r.id);
+      if (dynamicIds.length > 0) {
+        await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: dynamicIds });
+        // Sürümü sıfırla ki tekrar aktif olduğunda güncellensin veya pasif olduğu anlaşılsın
+        await chrome.storage.local.set({ cloudVersion: 'Devre Dışı' });
+      }
+    } else {
+      // Yeniden aktif olduğunda bulut kurallarını tetikle
+      updateCloudRules(); 
+    }
   } catch(e) {}
 
   try {
@@ -167,7 +181,7 @@ chrome.runtime.onStartup.addListener(() => {
 
 // ── Storage Değişiklikleri ───────────────────────────
 chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area === 'sync' || (area === 'local' && STORAGE_KEY_PAUSE_UNTIL in changes)) {
+  if (area === 'sync' || (area === 'local' && (STORAGE_KEY_PAUSE_UNTIL in changes || STORAGE_KEY_ENABLED in changes))) {
     await updateEffectiveState();
   }
 });
