@@ -23,10 +23,12 @@ Say goodbye to distractions and hello to a cleaner, faster, and safer internet.
 
 ## ✨ Key Features
 
-- **⚡ Blazing Fast Performance:** Lightweight and optimized for minimal memory usage.
+- **⚡ Blazing Fast & Dynamic:** The extension injects memory-friendly filtering scripts dynamically and instantly unloads them when turned OFF for zero background footprint.
 - **🚫 Advanced Ad Blocking:** Automatically blocks banners, pop-ups, video ads, and trackers.
-- **🎯 Smart Element Picker:** Point and click to remove ANY element from ANY website permanently. Now with **Dynamic Class Detection** to outsmart anti-adblock scripts.
-- **📺 YouTube Ad Defense:** Enjoy uninterrupted video streaming without pre-roll or mid-roll ads.
+- **🛡️ Heuristic Anti-Tracking (New!):** Next-gen privacy shield blocks Canvas/Audio Fingerprinting, intercepts WebRTC leaks, and neutralizes invisible 1x1 tracking pixels and outbound beacon requests.
+- **🧠 AI-Powered Content Filter (New!):** Integrates with Google's Generative AI to semantically analyze text segments (news, articles) and automatically collapse clickbait or undisclosed "Sponsored" content. Includes a dynamic model fetcher (letting users pick from `gemini-1.5-pro` to `gemini-2.5-flash`) and a multi-API-key fallback system.
+- **🎯 Smart Element Picker (Upgraded!):** Point and click to remove ANY element permanently. Features an intelligent hierarchical DOM traversing selector that analyzes parent nodes and siblings (`nth-of-type`) to create unbreakable CSS rules, actively avoiding dynamic or randomized framework classes.
+- **📺 YouTube Ad Defense:** Enjoy uninterrupted video streaming without pre-roll or mid-roll ads. Stops ads right at the network level.
 - **📊 Real-time Statistics:** Visualize how many ads and trackers have been blocked daily and per site.
 - **🌑 Dark Mode UI:** A beautiful, modern, and eye-friendly dark interface.
 - **🔒 Privacy First:** No data collection. Your browsing history stays on your device.
@@ -50,7 +52,10 @@ Say goodbye to distractions and hello to a cleaner, faster, and safer internet.
 
 - **Manifest V3:** Fully compliant with the latest Chrome extension standards for better security and performance.
 - **Declarative Net Request:** Uses the native browser API for efficient blocking without inspecting page content unnecessarily.
-- **MutationObserver:** Intelligently monitors DOM changes to catch ads that load dynamically after the page renders.
+- **Dynamic Content Scripting:** Injector, blocker, and picker JS files are dynamically registered and unregistered on-the-fly depending on the extension's functional state.
+- **Heuristic Obfuscation Model:** Overrides deep browser components like `HTMLCanvasElement` and `AudioContext` prototypes by adding mathematical noise to disrupt digital fingerprinting algorithms.
+- **Semantic Text Analytics:** Debounced chunked-processing via `chrome.runtime.sendMessage` securely queries Google's Generative AI endpoint. Utilizes array fallback logic to bypass `HTTP 429` (Rate-limit) issues without blocking the main UI thread.
+- **MutationObserver:** Intelligently monitors DOM changes to catch ads that load dynamically after the page renders, as well as invisible 1x1 pixels.
 
 ## 🤝 Contributing
 

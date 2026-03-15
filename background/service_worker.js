@@ -40,6 +40,13 @@ const DYNAMIC_SCRIPTS = [
     world: 'MAIN'
   },
   {
+    id: 'ai-filter',
+    allFrames: true,
+    js: ['content/ai-filter.js'],
+    matches: ['<all_urls>'],
+    runAt: 'document_idle'
+  },
+  {
     id: 'yt-blocker',
     allFrames: true,
     css: ['content/common.css'],
@@ -153,7 +160,9 @@ async function handleMessage(msg, sender) {
         [STORAGE_KEY_CUSTOM_RULES]: [],
         [STORAGE_KEY_WHITELIST]: [],
         [STORAGE_KEY_STATS]: { total: 0, daily: {}, byDomain: {} },
-        [STORAGE_KEY_PAUSE_UNTIL]: 0
+        [STORAGE_KEY_PAUSE_UNTIL]: 0,
+        aiEnabled: false,
+        aiKeys: []
       });
       return {
         success: true,
@@ -162,8 +171,85 @@ async function handleMessage(msg, sender) {
         pauseUntil: data[STORAGE_KEY_PAUSE_UNTIL],
         customRules: data[STORAGE_KEY_CUSTOM_RULES],
         whitelist: data[STORAGE_KEY_WHITELIST],
-        stats: data[STORAGE_KEY_STATS]
+        stats: data[STORAGE_KEY_STATS],
+        aiEnabled: data.aiEnabled,
+        aiKeys: data.aiKeys
       };
+    }
+
+    case 'SET_AI_ENABLED': {
+      await chrome.storage.local.set({ aiEnabled: msg.enabled });
+      return { success: true };
+    }
+
+    case 'ADD_AI_KEY': {
+      const data = await chrome.storage.local.get({ aiKeys: [] });
+      const keys = data.aiKeys || [];
+      const newInfo = msg.keyInfo || { key: msg.key, model: 'models/gemini-2.5-flash' };
+      
+      const exists = keys.some(k => {
+          const kStr = typeof k === 'string' ? k : k.key;
+          return kStr === newInfo.key;
+      });
+      
+      if (!exists) {
+        keys.push(newInfo);
+        await chrome.storage.local.set({ aiKeys: keys });
+      }
+      return { success: true, keys };
+    }
+
+    case 'REMOVE_AI_KEY': {
+      const data = await chrome.storage.local.get({ aiKeys: [] });
+      const keys = data.aiKeys || [];
+      keys.splice(msg.index, 1);
+      await chrome.storage.local.set({ aiKeys: keys });
+      return { success: true, keys };
+    }
+
+    case 'CHECK_AI_CONTENT': {
+      // API call to Gemini
+      const data = await chrome.storage.local.get({ aiEnabled: false, aiKeys: [] });
+      if (!data.aiEnabled || !data.aiKeys || data.aiKeys.length === 0) {
+        return { success: false, error: 'AI disabled or no keys' };
+      }
+      
+      const text = msg.text;
+      if (!text || text.length < 15) return { success: false, isClickbait: false };
+
+      // Prompt for Gemini
+      const prompt = `Lütfen aşağıdaki içeriğin "tıklama tuzağı (clickbait)" mi, yoksa gizli/reklam/sponsorlu mu olduğunu sadece "EVET" veya "HAYIR" diyerek cevapla. Açıklama yapma.\n\nİçerik: "${text}"`;
+
+      // Try keys one by one if rate limited
+      for (const keyItem of data.aiKeys) {
+        try {
+          const actualKey = keyItem.key || keyItem;
+          // default model if none specified
+          let model = keyItem.model || 'models/gemini-2.5-flash';
+          // Ensure model string has models/ prefix 
+          if (!model.startsWith('models/')) model = 'models/' + model;
+
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${actualKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.1, maxOutputTokens: 5 }
+            })
+          });
+          
+          if (res.status === 429) continue; // Rate limit, try next
+          
+          const result = await res.json();
+          if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts) {
+             const answer = result.candidates[0].content.parts[0].text.trim().toUpperCase();
+             return { success: true, isClickbait: answer.includes('EVET') };
+          }
+        } catch(e) {
+          // fetch error, maybe try next key
+        }
+      }
+      return { success: false, error: 'All keys failed or rate limited' };
     }
 
     case 'SET_ENABLED': {

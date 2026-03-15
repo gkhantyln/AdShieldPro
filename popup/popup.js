@@ -149,6 +149,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnResumeNow.style.display = 'none';
     }
 
+    // AI Settings & Home Badge
+    const { aiEnabled = false, aiKeys = [] } = currentState;
+    document.getElementById('aiToggle').checked = aiEnabled;
+    renderAiKeys(aiKeys);
+
+    const aiBadge = document.getElementById('aiActiveBadge');
+    if (aiBadge) {
+      if (aiEnabled && aiKeys.length > 0) {
+        aiBadge.style.display = 'flex';
+      } else {
+        aiBadge.style.display = 'none';
+      }
+    }
+
     // Footer Status Message
     if (!enabled) {
       statusMessage.textContent = 'Eklenti devre dışı';
@@ -159,6 +173,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       statusMessage.textContent = 'Tüm reklamlar engellenmiş durumda ✓';
     }
+  }
+
+  function renderAiKeys(keys) {
+    const list = document.getElementById('aiKeysList');
+    list.innerHTML = '';
+    if (!keys || keys.length === 0) {
+      list.innerHTML = '<span style="color:#64748b; font-size:11px;">Henüz key eklenmedi</span>';
+      return;
+    }
+    keys.forEach((item, index) => {
+      // Compatibility with old format or new { key, model } format
+      const keyVal = item.key || item;
+      const modelVal = item.model || 'gemini-2.5-flash';
+
+      const div = document.createElement('div');
+      div.style.cssText = 'display:flex; justify-content:space-between; align-items:center; background: rgba(15, 23, 42, 0.4); padding: 4px 8px; border-radius: 4px;';
+      const hiddenKey = keyVal.substring(0, 4) + '...' + keyVal.substring(keyVal.length - 4);
+      const shortModel = modelVal.replace('models/', '');
+      div.innerHTML = `<span style="color:#cbd5e1; font-size:11px; font-family:monospace;">${hiddenKey}</span><span style="color:#64748b; font-size:10px;">${shortModel}</span>`;
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✕';
+      delBtn.style.cssText = 'background:transparent; border:none; color:#ef4444; cursor:pointer; font-size:10px; padding:2px;';
+      delBtn.onclick = async () => {
+         await sendMsg({ type: 'REMOVE_AI_KEY', index });
+         await loadState();
+      };
+      div.appendChild(delBtn);
+      list.appendChild(div);
+    });
   }
 
   // ── Format Numbers ───────────────────────
@@ -476,9 +519,61 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadState();
   });
 
-  // Enter key for selector input
-  inputSelector.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') btnAddRule.click();
+  // AI Filter Events
+  const aiToggle = document.getElementById('aiToggle');
+  const btnFetchModels = document.getElementById('btnFetchModels');
+  const btnAddAiKey = document.getElementById('btnAddAiKey');
+  const inputAiKey = document.getElementById('inputAiKey');
+  const aiModelGroup = document.getElementById('aiModelGroup');
+  const selectAiModel = document.getElementById('selectAiModel');
+
+  aiToggle?.addEventListener('change', async () => {
+    await sendMsg({ type: 'SET_AI_ENABLED', enabled: aiToggle.checked });
+    await loadState();
+  });
+
+  btnFetchModels?.addEventListener('click', async () => {
+    const key = inputAiKey.value.trim();
+    if (!key) return;
+    
+    btnFetchModels.textContent = 'Bekleyin...';
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+      if (!res.ok) throw new Error('API Key hatalı veya yetkisiz.');
+      const data = await res.json();
+      
+      selectAiModel.innerHTML = '';
+      if (data.models && data.models.length > 0) {
+         // Sadece Gemini modellerini filtrele
+         const geminiModels = data.models.filter(m => m.name.includes('gemini'));
+         geminiModels.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.name;  // e.g. models/gemini-2.5-flash
+            opt.textContent = m.displayName || m.name.replace('models/', '');
+            selectAiModel.appendChild(opt);
+         });
+         
+         btnFetchModels.style.display = 'none';
+         aiModelGroup.style.display = 'flex';
+      }
+    } catch(err) {
+      alert('Modeller alınamadı: ' + err.message);
+    } finally {
+      btnFetchModels.textContent = 'Modelleri Bul';
+    }
+  });
+
+  btnAddAiKey?.addEventListener('click', async () => {
+    const key = inputAiKey.value.trim();
+    const model = selectAiModel.value;
+    if (key && model) {
+      // Send object instead of string
+      await sendMsg({ type: 'ADD_AI_KEY', keyInfo: { key, model } });
+      inputAiKey.value = '';
+      btnFetchModels.style.display = 'block';
+      aiModelGroup.style.display = 'none';
+      await loadState();
+    }
   });
 
   // ── Init ─────────────────────────────────
