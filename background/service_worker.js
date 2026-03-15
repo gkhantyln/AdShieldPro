@@ -162,7 +162,8 @@ async function handleMessage(msg, sender) {
         [STORAGE_KEY_STATS]: { total: 0, daily: {}, byDomain: {} },
         [STORAGE_KEY_PAUSE_UNTIL]: 0,
         aiEnabled: false,
-        aiKeys: []
+        aiKeys: [],
+        aiStats: { tokens: 0, blocked: 0 }
       });
       return {
         success: true,
@@ -173,7 +174,8 @@ async function handleMessage(msg, sender) {
         whitelist: data[STORAGE_KEY_WHITELIST],
         stats: data[STORAGE_KEY_STATS],
         aiEnabled: data.aiEnabled,
-        aiKeys: data.aiKeys
+        aiKeys: data.aiKeys,
+        aiStats: data.aiStats
       };
     }
 
@@ -209,7 +211,7 @@ async function handleMessage(msg, sender) {
 
     case 'CHECK_AI_CONTENT': {
       // API call to Gemini
-      const data = await chrome.storage.local.get({ aiEnabled: false, aiKeys: [] });
+      const data = await chrome.storage.local.get({ aiEnabled: false, aiKeys: [], aiStats: { tokens: 0, blocked: 0 } });
       if (!data.aiEnabled || !data.aiKeys || data.aiKeys.length === 0) {
         return { success: false, error: 'AI disabled or no keys' };
       }
@@ -224,9 +226,7 @@ async function handleMessage(msg, sender) {
       for (const keyItem of data.aiKeys) {
         try {
           const actualKey = keyItem.key || keyItem;
-          // default model if none specified
           let model = keyItem.model || 'models/gemini-2.5-flash';
-          // Ensure model string has models/ prefix 
           if (!model.startsWith('models/')) model = 'models/' + model;
 
           const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${actualKey}`, {
@@ -243,7 +243,19 @@ async function handleMessage(msg, sender) {
           const result = await res.json();
           if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts) {
              const answer = result.candidates[0].content.parts[0].text.trim().toUpperCase();
-             return { success: true, isClickbait: answer.includes('EVET') };
+             const isClickbait = answer.includes('EVET');
+             
+             // Update AI Stats
+             const stats = data.aiStats;
+             if (result.usageMetadata && result.usageMetadata.totalTokenCount) {
+                 stats.tokens += result.usageMetadata.totalTokenCount;
+             }
+             if (isClickbait) {
+                 stats.blocked += 1;
+             }
+             await chrome.storage.local.set({ aiStats: stats });
+             
+             return { success: true, isClickbait };
           }
         } catch(e) {
           // fetch error, maybe try next key

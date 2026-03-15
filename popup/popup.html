@@ -210,7 +210,7 @@
             <h3 class="section-title" style="margin-top: 16px;">Yapay Zeka (AI) İçerik Filtresi</h3>
             <div class="ai-filter-section" style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 8px; border: 1px solid rgba(51, 65, 85, 0.5);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <span style="font-size: 13px; color: #e2e8f0; font-weight: 500;">AI Filtresi (Gemini 2.5)</span>
+                    <span style="font-size: 13px; color: #e2e8f0; font-weight: 500;">AI Filtresi (Gemini Modelleri)</span>
                     <label class="toggle-switch" title="AI Filtresi Aç/Kapat" style="transform: scale(0.85); margin: 0;">
                         <input type="checkbox" id="aiToggle" />
                         <span class="toggle-slider"></span>
@@ -227,6 +227,17 @@
                 </div>
                 <div id="aiKeysList" style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
                     <!-- API Keys will be listed here -->
+                </div>
+                <div id="aiStatsDisplay" style="margin-top: 8px; display: none; justify-content: space-between; align-items: center; padding: 8px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px;">
+                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                        <span style="font-size: 10px; color: #94a3b8;">Tüketilen Token</span>
+                        <span id="aiTokenCount" style="font-size: 14px; font-weight: bold; color: #60a5fa; font-family: monospace;">0</span>
+                    </div>
+                    <div style="width: 1px; height: 24px; background: rgba(59, 130, 246, 0.2);"></div>
+                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                        <span style="font-size: 10px; color: #94a3b8;">Engellenen Clickbait</span>
+                        <span id="aiBlockedCount" style="font-size: 14px; font-weight: bold; color: #34d399; font-family: monospace;">0</span>
+                    </div>
                 </div>
                 <div style="font-size: 10px; color: #94a3b8; margin-top: 8px; line-height: 1.4;">
                     Clickbait haberleri ve gizli reklam bölümlerini gizler. Çoklu key-model ikilisi eklerseniz, biri kota aşımına (429) ulaşınca diğerine geçer.

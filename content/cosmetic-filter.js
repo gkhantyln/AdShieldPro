@@ -227,8 +227,5 @@
   } else {
     document.addEventListener('DOMContentLoaded', startObserver);
   }
-
-  // Periyodik temizlik (bazı reklamlar gecikmeli yükleniyor)
-  setInterval(aggressiveClean, 2000);
 })();
 

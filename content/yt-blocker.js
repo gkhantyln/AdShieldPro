@@ -123,35 +123,45 @@
     const isChannelPage = window.location.pathname.includes('/channel/') || window.location.pathname.includes('/@');
     if (isChannelPage) return;
 
-    // Mutation gözlemcisi: sadece video sayfasında
     if (isVideoPage) {
-      const videoContainer = select('#movie_player') || select('#player');
+      const videoContainer = select('#movie_player') || select('ytd-player') || document.body;
       if (videoContainer) {
+        let mutScheduled = false;
         const observer = new MutationObserver((mutations) => {
+          if (mutScheduled) return;
           const hasAdChanges = mutations.some(m => {
             const t = m.target;
-            return t && (
-              t.classList?.contains('ad-showing') ||
-              t.classList?.contains('ytp-ad-player-overlay') ||
-              t.id === 'player-ads' ||
-              t.classList?.contains('video-ads')
+            return t && t.classList && (
+              t.classList.contains('ad-showing') ||
+              t.classList.contains('ytp-ad-player-overlay') ||
+              t.classList.contains('video-ads') ||
+              t.id === 'player-ads'
             );
           });
-          if (hasAdChanges) scheduleTick();
+          if (hasAdChanges) {
+            mutScheduled = true;
+            requestAnimationFrame(() => { mutScheduled = false; tick(); });
+          }
         });
         observer.observe(videoContainer, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
       }
+
+      // Add event listeners instead of setInterval for better performance
+      document.addEventListener('timeupdate', (e) => {
+          if (e.target.tagName === 'VIDEO' && isAdPlaying()) tick();
+      }, true);
+      
+      document.addEventListener('play', (e) => {
+          if (e.target.tagName === 'VIDEO') tick();
+      }, true);
     }
 
+    // İlk taramayı yap
     scheduleTick();
-    const intervalTime = isVideoPage ? 250 : 2000;
-    const interval = setInterval(() => scheduleTick(), intervalTime);
 
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) scheduleTick();
     });
-
-    window.addEventListener('pagehide', () => clearInterval(interval));
   }
 
   try { start(); } catch(e) {}

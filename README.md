@@ -23,7 +23,7 @@ Say goodbye to distractions and hello to a cleaner, faster, and safer internet.
 
 ## ✨ Key Features
 
-- **⚡ Blazing Fast & Dynamic:** The extension injects memory-friendly filtering scripts dynamically and instantly unloads them when turned OFF for zero background footprint.
+- **⚡ Zero-Footprint Performance:** The extension injects memory-friendly filtering scripts dynamically and instantly unloads them when turned OFF. Employs hardware-accelerated (`requestAnimationFrame`) algorithms instead of heavy loops (`setInterval`) to ensure CPU/RAM usage stays near zero.
 - **🚫 Advanced Ad Blocking:** Automatically blocks banners, pop-ups, video ads, and trackers.
 - **🛡️ Heuristic Anti-Tracking (New!):** Next-gen privacy shield blocks Canvas/Audio Fingerprinting, intercepts WebRTC leaks, and neutralizes invisible 1x1 tracking pixels and outbound beacon requests.
 - **🧠 AI-Powered Content Filter (New!):** Integrates with Google's Generative AI to semantically analyze text segments (news, articles) and automatically collapse clickbait or undisclosed "Sponsored" content. Includes a dynamic model fetcher (letting users pick from `gemini-1.5-pro` to `gemini-2.5-flash`) and a multi-API-key fallback system.

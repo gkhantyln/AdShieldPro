@@ -149,18 +149,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnResumeNow.style.display = 'none';
     }
 
-    // AI Settings & Home Badge
-    const { aiEnabled = false, aiKeys = [] } = currentState;
+    // AI Settings & Home Badge & Stats
+    const { aiEnabled = false, aiKeys = [], aiStats = { tokens: 0, blocked: 0 } } = currentState;
     document.getElementById('aiToggle').checked = aiEnabled;
     renderAiKeys(aiKeys);
 
     const aiBadge = document.getElementById('aiActiveBadge');
-    if (aiBadge) {
-      if (aiEnabled && aiKeys.length > 0) {
-        aiBadge.style.display = 'flex';
-      } else {
-        aiBadge.style.display = 'none';
+    const aiStatsDisplay = document.getElementById('aiStatsDisplay');
+    const aiTokenCount = document.getElementById('aiTokenCount');
+    const aiBlockedCount = document.getElementById('aiBlockedCount');
+
+    if (aiEnabled && aiKeys.length > 0) {
+      if (aiBadge) aiBadge.style.display = 'flex';
+      
+      if (aiStatsDisplay) {
+        aiStatsDisplay.style.display = 'flex';
+        aiTokenCount.textContent = (aiStats.tokens || 0).toLocaleString();
+        aiBlockedCount.textContent = (aiStats.blocked || 0).toLocaleString();
       }
+    } else {
+      if (aiBadge) aiBadge.style.display = 'none';
+      if (aiStatsDisplay) aiStatsDisplay.style.display = 'none';
     }
 
     // Footer Status Message
