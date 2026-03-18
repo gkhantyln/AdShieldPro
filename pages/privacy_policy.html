@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AdShield Pro Privacy Policy — Full transparency on data collection, storage, and your rights." />
+  <title>Privacy Policy — AdShield Pro</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #0a0e1a;
+      color: #e2e8f0;
+      line-height: 1.75;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #1e2d45;
+    }
+    header img { width: 52px; height: 52px; border-radius: 12px; }
+    header .title h1 { font-size: 1.6rem; font-weight: 700; color: #fff; }
+    header .title p { font-size: 0.82rem; color: #64748b; margin-top: 0.2rem; }
+
+    /* ── Meta bar ── */
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+    }
+    .meta-pill {
+      background: #111827;
+      border: 1px solid #1e2d45;
+      border-radius: 20px;
+      padding: 0.3rem 0.85rem;
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+    .meta-pill span { color: #60a5fa; font-weight: 600; }
+
+    /* ── Summary box ── */
+    .summary-box {
+      background: #0d1f12;
+      border: 1px solid #166534;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .summary-box .summary-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #4ade80;
+      margin-bottom: 0.85rem;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 0.5rem;
+    }
+    .summary-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+    }
+    .summary-row .icon { font-size: 1rem; flex-shrink: 0; }
+    .summary-row .label { color: #94a3b8; }
+    .summary-row .answer { color: #4ade80; font-weight: 600; }
+
+    /* ── Sections ── */
+    .section { margin-bottom: 2.5rem; }
+
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 0.85rem;
+      padding: 0.5rem 0.85rem;
+      background: #111827;
+      border-left: 3px solid #3b82f6;
+      border-radius: 0 6px 6px 0;
+    }
+
+    h3 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin: 1.25rem 0 0.5rem;
+    }
+
+    p { font-size: 0.92rem; color: #94a3b8; margin-bottom: 0.75rem; }
+    p strong { color: #e2e8f0; }
+
+    ul { list-style: none; margin: 0.5rem 0 0.75rem; }
+    ul li {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      padding: 0.25rem 0 0.25rem 1.25rem;
+      position: relative;
+    }
+    ul li::before { content: "›"; position: absolute; left: 0; color: #3b82f6; font-weight: 700; }
+    ul li strong { color: #e2e8f0; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin: 0.75rem 0 1rem; border-radius: 8px; border: 1px solid #1e2d45; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    thead tr { background: #111827; }
+    th { padding: 0.65rem 1rem; text-align: left; color: #64748b; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #1e2d45; }
+    td { padding: 0.65rem 1rem; color: #94a3b8; border-bottom: 1px solid #111827; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    td strong { color: #e2e8f0; }
+    td.no { color: #4ade80; font-weight: 600; }
+    td.yes { color: #f87171; font-weight: 600; }
+
+    code {
+      background: #111827;
+      border: 1px solid #1e2d45;
+      border-radius: 4px;
+      padding: 0.1rem 0.45rem;
+      font-size: 0.82rem;
+      color: #34d399;
+      font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
+    }
+
+    a { color: #60a5fa; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Callout boxes ── */
+    .callout {
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 0.75rem 0 1rem;
+      font-size: 0.9rem;
+    }
+    .callout-green {
+      background: #0d1f12;
+      border: 1px solid #166534;
+      color: #86efac;
+    }
+    .callout-blue {
+      background: #0c1a2e;
+      border: 1px solid #1e40af;
+      color: #93c5fd;
+    }
+    .callout-yellow {
+      background: #1a1500;
+      border: 1px solid #854d0e;
+      color: #fde68a;
+    }
+    .callout .callout-title {
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+      opacity: 0.8;
+    }
+    .callout ul li { color: inherit; }
+    .callout ul li::before { color: inherit; opacity: 0.6; }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #1e2d45;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #475569;
+    }
+    footer a { color: #60a5fa; }
+
+    hr { border: none; border-top: 1px solid #1e2d45; margin: 2rem 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <img src="https://raw.githubusercontent.com/gkhantyln/AdShieldPro/main/icons/icon128.png"
+         alt="AdShield Pro"
+         onerror="this.style.display='none'" />
+    <div class="title">
+      <h1>AdShield Pro</h1>
+      <p>Privacy Policy &mdash; Extension ID: eibnkbhhjiogbffbbfjpamabjmlchmbd</p>
+    </div>
+  </header>
+
+  <!-- Meta pills -->
+  <div class="meta-bar">
+    <div class="meta-pill"><span>Last updated:</span> March 17, 2026</div>
+    <div class="meta-pill"><span>Effective:</span> March 17, 2026</div>
+    <div class="meta-pill"><span>Developer:</span> Gökhan TAYLAN</div>
+    <div class="meta-pill"><span>Contact:</span> <a href="mailto:tylngkhn@gmail.com">tylngkhn@gmail.com</a></div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-box">
+    <div class="summary-title">&#x2714; Plain Language Summary</div>
+    <div class="summary-grid">
+      <div class="summary-row"><span class="icon">🚫</span><span class="label">Collect browsing history?</span><span class="answer">Never</span></div>
+      <div class="summary-row"><span class="icon">🚫</span><span class="label">Collect personal data?</span><span class="answer">Never</span></div>
+      <div class="summary-row"><span class="icon">🚫</span><span class="label">Send data to developer servers?</span><span class="answer">Never — no servers exist</span></div>
+      <div class="summary-row"><span class="icon">🚫</span><span class="label">Gemini API key sent to developer?</span><span class="answer">Never — stays in your browser</span></div>
+      <div class="summary-row"><span class="icon">🚫</span><span class="label">Sell or share user data?</span><span class="answer">Never</span></div>
+      <div class="summary-row"><span class="icon">🚫</span><span class="label">Use analytics or tracking?</span><span class="answer">Never</span></div>
+    </div>
+  </div>
+
+  <!-- 1. Introduction -->
+  <div class="section">
+    <h2>1. Introduction</h2>
+    <p>AdShield Pro is a browser extension that blocks advertisements, trackers, and malicious content. This Privacy Policy describes in full detail what data is collected, how it is stored, how long it is retained, whether it is shared, and what rights you have as a user.</p>
+    <p><strong>The developer of AdShield Pro has zero access to your data at any time.</strong> We operate no servers, no databases, and no analytics infrastructure.</p>
+  </div>
+
+  <!-- 2. Data We Collect -->
+  <div class="section">
+    <h2>2. Data We Collect and Store</h2>
+
+    <h3>2.1 Data We Do NOT Collect</h3>
+    <div class="callout callout-green">
+      <div class="callout-title">&#x2714; The developer never receives any of the following</div>
+      <ul>
+        <li>Browsing history or visited URLs</li>
+        <li>Personally identifiable information (PII) of any kind</li>
+        <li>IP addresses or geolocation data</li>
+        <li>Device identifiers or hardware fingerprints</li>
+        <li>Keystrokes, form inputs, or passwords</li>
+        <li>Analytics, telemetry, or crash reports</li>
+      </ul>
+    </div>
+
+    <h3>2.2 Data Stored Locally on Your Device (<code>chrome.storage.local</code>)</h3>
+    <p>The following data is stored exclusively on your device and is <strong>never transmitted</strong> to the developer or any third party:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Purpose</th><th>Accessible by developer?</th></tr></thead>
+        <tbody>
+          <tr><td>Extension on/off state</td><td>Remember your preference</td><td class="no">No</td></tr>
+          <tr><td>Pause timer</td><td>Remember pause duration</td><td class="no">No</td></tr>
+          <tr><td>Custom blocking rules (CSS selectors)</td><td>Apply your personal element-hiding rules</td><td class="no">No</td></tr>
+          <tr><td>Whitelisted domains</td><td>Skip blocking on chosen sites</td><td class="no">No</td></tr>
+          <tr><td>Ad blocking statistics (counts only, no URLs)</td><td>Display stats in the popup</td><td class="no">No</td></tr>
+          <tr><td>YouTube ad-skip settings</td><td>Customize YouTube behavior</td><td class="no">No</td></tr>
+          <tr><td>Cloud rule version &amp; last update timestamp</td><td>Track rule freshness</td><td class="no">No</td></tr>
+          <tr><td>AI usage statistics (token count, blocked count)</td><td>Display AI stats in popup</td><td class="no">No</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.3 Data Stored in Chrome Sync Storage (<code>chrome.storage.sync</code>)</h3>
+    <p>The following data is stored in <code>chrome.storage.sync</code>, which is a browser-managed storage area controlled entirely by Google Chrome:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Purpose</th><th>Accessible by developer?</th></tr></thead>
+        <tbody>
+          <tr><td>AI feature enabled/disabled state</td><td>Sync your AI preference across your signed-in Chrome devices</td><td class="no">No</td></tr>
+          <tr><td>Gemini API key(s) you enter</td><td>Authenticate directly with Google's Gemini API from your browser</td><td class="no">No</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-blue">
+      <div class="callout-title">&#x1F511; Important: About Your Gemini API Key</div>
+      <ul>
+        <li>Your API key is stored in <code>chrome.storage.sync</code> — a sandboxed storage area managed entirely by Google Chrome, not by AdShield Pro.</li>
+        <li>The developer of AdShield Pro has <strong>zero access</strong> to <code>chrome.storage.sync</code> data. It is never transmitted to, read by, or stored on any server owned by the developer.</li>
+        <li>The key is used exclusively to make direct HTTPS calls from <strong>your browser</strong> to Google's Gemini API. AdShield Pro does not proxy, intercept, log, or forward this key at any point.</li>
+        <li>If you are signed into Chrome, Google may sync this storage across your own devices as part of Chrome's built-in sync feature. This sync is governed by <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>, not by AdShield Pro.</li>
+        <li>You can remove your API key at any time from the extension's Settings tab → AI Filter section.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 3. How Data Is Processed -->
+  <div class="section">
+    <h2>3. How Data Is Processed</h2>
+
+    <h3>3.1 Ad Blocking (Core Feature)</h3>
+    <p>AdShield Pro uses Chrome's built-in <code>declarativeNetRequest</code> API to block network requests. This API operates entirely within the browser — no request data is sent to the developer. The extension matches URLs against locally stored and remotely fetched rule lists without transmitting any browsing data externally.</p>
+
+    <h3>3.2 Remote Rule List Updates</h3>
+    <p>AdShield Pro periodically fetches a JSON rule list from GitHub to keep blocking rules current. During this fetch:</p>
+    <ul>
+      <li>Only a static list of URL patterns is downloaded</li>
+      <li>No personal data, browsing history, or user identifiers are transmitted</li>
+      <li>No executable code is downloaded or run</li>
+      <li>The connection is strictly one-way: download only</li>
+    </ul>
+
+    <h3>3.3 Optional AI Content Filter (Google Gemini API)</h3>
+    <div class="callout callout-yellow">
+      <div class="callout-title">&#x26A0; Optional Feature — Disabled by Default</div>
+      <ul>
+        <li>This feature is <strong>off by default</strong> and only activates if you explicitly enable it and provide your own Gemini API key.</li>
+        <li>When enabled, your browser sends page text snippets <strong>directly</strong> to Google's Gemini API using the key you provided.</li>
+        <li>AdShield Pro does <strong>not</strong> act as a proxy or intermediary — the request goes directly from your browser to Google's servers over HTTPS.</li>
+        <li>The developer of AdShield Pro <strong>cannot see, intercept, or store</strong> any part of this communication.</li>
+        <li>You can disable this feature or remove your API key at any time from the Settings tab.</li>
+      </ul>
+    </div>
+    <p>This feature's data processing is governed by <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</p>
+  </div>
+
+  <!-- 4. Legal Basis -->
+  <div class="section">
+    <h2>4. Legal Basis for Processing</h2>
+    <p>AdShield Pro processes data stored on your device solely to deliver the extension's core functionality. No personal data is collected or processed by the developer.</p>
+    <p>For optional features involving third-party services (Google Gemini API), processing is based on your <strong>explicit consent</strong>, which you provide by entering your API key and enabling the feature. You may withdraw consent at any time by disabling the feature or removing your key.</p>
+  </div>
+
+  <!-- 5. Data Retention -->
+  <div class="section">
+    <h2>5. Data Retention</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Retention Period</th></tr></thead>
+        <tbody>
+          <tr><td>Local settings, rules, and statistics</td><td>Until you uninstall the extension or clear it manually via Chrome settings</td></tr>
+          <tr><td>Sync storage (AI key, AI enabled state)</td><td>Until you remove it from the extension Settings tab or clear Chrome sync data</td></tr>
+          <tr><td>Developer-held data</td><td><strong>None</strong> — the developer holds no user data whatsoever</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 6. Data Sharing -->
+  <div class="section">
+    <h2>6. Data Sharing and Third Parties</h2>
+    <p>AdShield Pro does <strong>not</strong> sell, rent, trade, or share user data with any third party.</p>
+    <p>The extension interacts with the following external services solely at your direction:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Service</th><th>Interaction</th><th>Data Sent</th><th>Governed By</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Google Gemini API</strong></td>
+            <td>Optional AI content analysis (only if you enable it and provide a key)</td>
+            <td>Page text snippets sent directly from your browser to Google</td>
+            <td><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></td>
+          </tr>
+          <tr>
+            <td><strong>GitHub</strong></td>
+            <td>Downloading ad-blocking rule list updates</td>
+            <td>No user data sent — download only</td>
+            <td><a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 7. Permissions -->
+  <div class="section">
+    <h2>7. Permissions Justification</h2>
+    <p>Chrome requires the following permissions, each with a specific and necessary purpose. No permission is used for data collection or surveillance.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Permission</th><th>Why It Is Required</th></tr></thead>
+        <tbody>
+          <tr><td><code>activeTab</code></td><td>Apply blocking rules on the currently active tab</td></tr>
+          <tr><td><code>alarms</code></td><td>Schedule periodic rule list updates in the background</td></tr>
+          <tr><td><code>storage</code></td><td>Save your settings, custom rules, and statistics locally on your device</td></tr>
+          <tr><td><code>scripting</code></td><td>Inject content scripts to remove cosmetic ad elements from pages</td></tr>
+          <tr><td><code>tabs</code></td><td>Read the current tab URL to apply site-specific rules</td></tr>
+          <tr><td><code>declarativeNetRequest</code></td><td>Block ad and tracker network requests natively via Chrome's built-in API</td></tr>
+          <tr><td><code>declarativeNetRequestFeedback</code></td><td>Display blocking statistics to you in the popup</td></tr>
+          <tr><td><code>webNavigation</code></td><td>Intercept navigation events before a page loads to instantly redirect blocked sites — prevents blocked content from ever rendering</td></tr>
+          <tr><td><code>host_permissions (&lt;all_urls&gt;)</code></td><td>Apply blocking rules across all websites you visit</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 8. Your Rights -->
+  <div class="section">
+    <h2>8. Your Rights</h2>
+    <p>Depending on your jurisdiction (including GDPR, CCPA, and similar laws), you may have the following rights:</p>
+    <ul>
+      <li><strong>Right to Access:</strong> Request information about data held about you</li>
+      <li><strong>Right to Erasure:</strong> Request deletion of your data</li>
+      <li><strong>Right to Rectification:</strong> Request correction of inaccurate data</li>
+      <li><strong>Right to Object:</strong> Object to certain types of processing</li>
+      <li><strong>Right to Data Portability:</strong> Request a copy of your data in a portable format</li>
+      <li><strong>Right to Withdraw Consent:</strong> Withdraw consent for optional features at any time</li>
+    </ul>
+    <p>Since AdShield Pro does not collect or store any personal data on external servers, these rights are primarily exercised directly on your device:</p>
+    <ul>
+      <li><strong>To delete all extension data:</strong> Uninstall the extension or use Chrome's "Clear data" option for the extension</li>
+      <li><strong>To remove your Gemini API key:</strong> Open the extension popup → Settings → AI Filter → remove your key</li>
+      <li><strong>To disable AI processing:</strong> Toggle off the AI Content Filter in Settings</li>
+    </ul>
+    <p>For any privacy-related inquiries, contact: <a href="mailto:tylngkhn@gmail.com">tylngkhn@gmail.com</a></p>
+  </div>
+
+  <!-- 9. Children's Privacy -->
+  <div class="section">
+    <h2>9. Children's Privacy</h2>
+    <p>AdShield Pro does not knowingly collect any data from anyone, including children under the age of 13 (or the applicable age of digital consent in your jurisdiction). The extension collects no personal data from any user of any age.</p>
+  </div>
+
+  <!-- 10. Security -->
+  <div class="section">
+    <h2>10. Security</h2>
+    <ul>
+      <li>All extension data is stored using Chrome's built-in storage APIs (<code>chrome.storage.local</code> and <code>chrome.storage.sync</code>), which are sandboxed and inaccessible to other extensions or websites</li>
+      <li>The developer operates no servers, databases, or infrastructure that stores user data</li>
+      <li>There is no risk of a developer-side data breach because no user data is ever transmitted to the developer</li>
+      <li>Your Gemini API key is stored in Chrome's sync storage and is only transmitted directly to Google's API endpoints over HTTPS</li>
+    </ul>
+  </div>
+
+  <!-- 11. Changes -->
+  <div class="section">
+    <h2>11. Changes to This Policy</h2>
+    <p>If this Privacy Policy is updated, the revised version will be published at the same URL with an updated "Last updated" date. For significant changes, we will update the extension version notes. Continued use of the extension after changes constitutes acceptance of the updated policy.</p>
+  </div>
+
+  <!-- 12. Contact -->
+  <div class="section">
+    <h2>12. Contact</h2>
+    <p>For questions, concerns, or privacy-related requests:</p>
+    <ul>
+      <li>Email: <a href="mailto:tylngkhn@gmail.com">tylngkhn@gmail.com</a></li>
+      <li>GitHub: <a href="https://github.com/gkhantyln" target="_blank" rel="noopener">github.com/gkhantyln</a></li>
+      <li>Extension ID: eibnkbhhjiogbffbbfjpamabjmlchmbd</li>
+    </ul>
+  </div>
+
+  <footer>
+    &copy; 2026 AdShield Pro &mdash; Gökhan TAYLAN &mdash;
+    <a href="https://github.com/gkhantyln" target="_blank" rel="noopener">GitHub</a>
+  </footer>
+
+</div>
+</body>
+</html>
