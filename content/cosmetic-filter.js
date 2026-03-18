@@ -134,10 +134,71 @@
   // MutationObserver ile yeni eklenen içerikleri de kontrol et
   let refreshTimeout = null;
 
+  // Adblock detection bait elementlerini tanımla — bunlara dokunma
+  const BAIT_SELECTORS = [
+    '#ads', '#ad', '.ad', '.ads', '.adsbox', '.ad-banner', '.ad-unit',
+    '#adBanner', '#adContainer', '#adWrapper', '#adFrame',
+    '.advertisement', '#advertisement',
+    '[id*="google_ads"]', '[id*="doubleclick"]',
+    '.adsbygoogle', '#adsbygoogle',
+    // tmailor.com bait containers
+    '.athmd3l1', '[data-id="atc7ek8p"]', '[data-id="ato5fw2b"]', '[data-id="atry9gf5"]'
+  ];
+
+  function isBaitElement(el) {
+    return BAIT_SELECTORS.some(sel => {
+      try { return el.matches(sel); } catch(e) { return false; }
+    });
+  }
+
+  // ── Site-Specific Anti-Adblock Bypass ───────────────────────────────────
+  // Bazı siteler reklam container'larının yüklenip yüklenmediğini kontrol ederek
+  // adblock tespiti yapar ve bir overlay gösterir. Bu overlay'leri gizliyoruz.
+  const ANTI_ADBLOCK_OVERLAYS = {
+    'tmailor.com': {
+      // Adblock uyarı overlay'i — gizle
+      hide: ['#atzel9hv'],
+      // Bait container'lar — DOKUNMA (bunları gizlersek tespit tetiklenir)
+      ignore: ['.athmd3l1', '[data-id="atc7ek8p"]', '[data-id="ato5fw2b"]', '[data-id="atry9gf5"]']
+    }
+  };
+
+  function applySiteSpecificBypass() {
+    const host = window.location.hostname.replace('www.', '');
+    const rules = ANTI_ADBLOCK_OVERLAYS[host];
+    if (!rules) return;
+
+    // Overlay'leri gizle
+    rules.hide.forEach(sel => {
+      try {
+        document.querySelectorAll(sel).forEach(el => {
+          el.style.setProperty('display', 'none', 'important');
+          el.style.setProperty('visibility', 'hidden', 'important');
+          el.style.setProperty('pointer-events', 'none', 'important');
+        });
+      } catch(e) {}
+    });
+  }
+
+  // DOM hazır olduğunda ve yeni node eklendiğinde çalıştır (attribute değil!)
+  applySiteSpecificBypass();
+
+  const siteBypassObserver = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      if (m.addedNodes.length > 0) {
+        applySiteSpecificBypass();
+        break;
+      }
+    }
+  });
+  siteBypassObserver.observe(document.documentElement, { childList: true, subtree: true });
+  // ────────────────────────────────────────────────────────────────────────
+
   // ── Agresif Reklam Temizleyici (Yayın Siteleri) ──
   function aggressiveClean() {
     // 1. data-advertisement-link elementlerini kaldır
     document.querySelectorAll('[data-advertisement-link]').forEach(el => {
+      if (isBaitElement(el)) return;
       el.style.setProperty('display', 'none', 'important');
       el.style.setProperty('visibility', 'hidden', 'important');
       el.style.setProperty('height', '0', 'important');
@@ -146,6 +207,7 @@
 
     // 2. data-free-banner elementlerini kaldır
     document.querySelectorAll('[data-free-banner]').forEach(el => {
+      if (isBaitElement(el)) return;
       el.style.setProperty('display', 'none', 'important');
       el.style.setProperty('visibility', 'hidden', 'important');
     });

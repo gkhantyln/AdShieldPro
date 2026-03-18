@@ -1,11 +1,11 @@
 <div align="center">
 
-# 🛡️ AdShield Pro v2.1
+# 🛡️ AdShield Pro v2.2
 ### The Ultimate Ad Blocking Experience
 
 <img alt="image.png" data-hpc="true" src="https://github.com/gkhantyln/AdShieldPro/blob/main/image.png" style="max-width: 100%;">
 
-[![Version](https://img.shields.io/badge/version-2.1-blue.svg?style=for-the-badge)](https://github.com/gkhantyln/AdShieldPro)
+[![Version](https://img.shields.io/badge/version-2.2-blue.svg?style=for-the-badge)](https://github.com/gkhantyln/AdShieldPro)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Chrome](https://img.shields.io/badge/Chrome-Extension-4285F4.svg?style=for-the-badge&logo=google-chrome&logoColor=white)](https://chrome.google.com/webstore)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
@@ -19,54 +19,103 @@
 
 **AdShield Pro** is not just another ad blocker. It is a high-performance, intelligent content filtering engine designed to reclaim your browsing experience. Built with a focus on speed, privacy, and user control, AdShield Pro eliminates intrusive ads, trackers, and annoyances across the web, including YouTube.
 
-Say goodbye to distractions and hello to a cleaner, faster, and safer internet.
-
 ## ✨ Key Features
 
-- **⚽ Live Stream Pro (New!):** Entegre "Nükleer" video atlatıcı sayesinde SelcukSports gibi canlı yayın sitelerindeki 15 saniyelik zorunlu reklamları 1 saniyenin altına indirir.
-- **⚡ Instant Cosmetic Block (New!):** Sayfa yüklenirken oluşan "reklam parlamasını" (1 saniyelik görünme) engellemek için kuralları `document_start` seviyesinde anında uygular.
-- **🖱️ Smart Auto-Play:** Yayın sitelerindeki "reklambanner" görsellerini ve play butonlarını otomatik algılayıp sizin yerinize tıklar, yayını saniyeler içinde başlatır.
-- **🛡️ Heuristic Anti-Tracking:** Next-gen privacy shield blocks Canvas/Audio Fingerprinting, intercepts WebRTC leaks, and neutralizes invisible 1x1 tracking pixels.
-- **🧠 AI-Powered Content Filter:** Integrates with Google's Generative AI to semantically analyze text segments (news, articles) and automatically collapse clickbait.
-- **☁️ Cloud-Based Rule Engine:** Automatically fetches and updates global ad-blocking lists 3 times a day via background alarms.
-- **🎯 Smart Element Picker:** Point and click to remove ANY element permanently with intelligent hierarchical DOM traversing.
-- **📺 YouTube Ad Defense:** Enjoy uninterrupted video streaming without pre-roll or mid-roll ads. 16x speed-skipping fallback included.
-- **🌑 Dark Mode UI:** A beautiful, modern, and eye-friendly dark interface.
-- **🔒 Privacy First:** No data collection. Your browsing history stays on your device.
+- **⚽ Live Stream Pro:** Entegre "Nükleer" video atlatıcı sayesinde SelcukSports gibi canlı yayın sitelerindeki zorunlu reklamları 1 saniyenin altına indirir.
+- **⚡ Instant Cosmetic Block:** Sayfa yüklenirken oluşan "reklam parlamasını" engellemek için kuralları `document_start` seviyesinde anında uygular.
+- **🖱️ Smart Auto-Play:** Yayın sitelerindeki reklam banner'larını ve play butonlarını otomatik algılayıp tıklar.
+- **🛡️ Heuristic Anti-Tracking:** Canvas/Audio Fingerprinting, WebRTC leak ve 1x1 tracking pixel'leri engeller.
+- **🧠 AI-Powered Content Filter:** Google Generative AI ile clickbait ve gizli reklam içeriklerini semantik olarak analiz eder.
+- **☁️ Filter List Engine:** ABP/uBlock formatındaki filtre listelerini otomatik parse edip Chrome'un native DNR API'sine yükler. 8 saatte bir otomatik güncellenir.
+- **🇹🇷 Türkiye Desteği:** AdGuard Turkish Filter varsayılan olarak aktif. Türk sitelerdeki reklamları özel olarak hedefler.
+- **🎯 Smart Element Picker:** Sayfadan herhangi bir elementi tıklayarak kalıcı olarak kaldır.
+- **📺 YouTube Ad Defense:** Pre-roll ve mid-roll reklamları engeller, 16x hız atlama fallback dahil.
+- **🔒 Privacy First:** Veri toplanmaz. Tarama geçmişiniz cihazınızda kalır.
+- **👨‍👩‍👧 Ebeveyn Kontrolü:** 100.000+ alan adı içeren yetişkin içerik veritabanı. Aktif edildiğinde engellenen sitelere erişim otomatik olarak `blocked.html` sayfasına yönlendirilir.
+- **🚫 Manuel Site Engelleme:** Wildcard pattern desteğiyle istediğiniz siteleri engelleyin. `site.com`, `*.site.com` veya `*.site.*` formatlarını destekler. Engellenen sitelere girmeden önce sayfa içeriği görünmez.
 
-## 🛠️ Installation
+## ☁️ Filtre Listeleri
+
+Ayarlar sekmesindeki **Bulut Listeleri** bölümünden yönetilir.
+
+### Varsayılan Açık
+| Liste | Açıklama |
+|-------|----------|
+| AdGuard Turkish Filter 🇹🇷 | Türkçe sitelerdeki reklamları hedefler |
+
+### Mevcut Listeler (Manuel Açılabilir)
+| Liste | Açıklama |
+|-------|----------|
+| EasyList | Genel reklam engelleme (İngilizce ağırlıklı) |
+| EasyList (No Adult) | Yetişkin içerik kuralları hariç EasyList |
+| EasyList (No Element Hiding) | Sadece network kuralları |
+| EasyPrivacy | Tracker ve analitik engelleme |
+| EasyPrivacy (No International) | Uluslararası domain kuralları hariç |
+| EasyList Cookie List | Cookie banner engelleme |
+| Fanboy's Annoyance List | Rahatsız edici içerik engelleme |
+| Fanboy's Social Blocking List | Sosyal medya widget engelleme |
+| Adblock Warning Removal | Anti-adblock uyarılarını engeller |
+| Dandelion Sprout's Nordic Filters | İskandinav siteleri için |
+| Turk Adlist (TR) 🇹🇷 | Topluluk tabanlı Türkiye listesi |
+
+> ⚠️ **Önemli:** Chrome MV3, dynamic rules için **5.000 kural limiti** uygular. Aynı anda en fazla **2–3 liste** açmanız önerilir. Liste değiştirdikten sonra **"Güncelle" butonuna basmanız** gerekir.
+
+### Özel Liste Ekleme
+Ayarlar → Bulut Listeleri → "Özel Liste Ekle" bölümüne herhangi bir ABP/uBlock formatındaki `.txt` liste URL'si eklenebilir.
+
+## 🆕 v2.2 Değişiklikleri
+
+- **Ebeveyn Kontrolü:** 100.000+ domainlik yetişkin içerik listesi entegrasyonu. `webNavigation.onBeforeNavigate` ile sayfa yüklenmeden anında engelleme.
+- **Manuel Site Engelleme:** Wildcard pattern desteği (`site.com`, `*.site.com`, `*.site.*`). Engelleme `webNavigation` ile anlık, içerik hiç görünmez.
+- **Engel Sayfası (blocked.html):** Yeniden tasarlandı. Domain adı, tarih ve saat bilgisi gösterilir. CSP uyumlu harici JS dosyasına taşındı.
+- **webNavigation Permission:** Daha hızlı ve güvenilir engelleme için `webNavigation` izni eklendi.
+- **Pattern Bilgilendirmesi:** Popup'ta kullanıcıya wildcard kullanımı açıklandı.
+
+## 👨‍👩‍👧 Ebeveyn Kontrolü & Site Engelleme
+
+### Yetişkin İçerik Filtresi
+Ayarlar sekmesinden tek tıkla aktif edilir. İlk açılışta liste indirilir (~birkaç saniye). 24 saatte bir otomatik güncellenir.
+
+### Manuel Site Engelleme
+| Pattern | Eşleşir |
+|---------|---------|
+| `site.com` | site.com ve tüm subdomainleri (www, tr, m…) |
+| `*.site.com` | Sadece subdomainler (tr.site.com, m.site.com) |
+| `*.site.*` | Her uzantıda engelle (.net, .org, .co.uk…) |
+
+Engellenen siteye gidildiğinde sayfa içeriği görünmeden `blocked.html` sayfasına yönlendirilir. Google'a yönlendirme seçeneği de mevcuttur.
+
+
 
 ### For Developers (Load Unpacked)
 
-1.  Clone this repository:
-    ```bash
-    git clone https://github.com/gkhantyln/AdShieldPro.git
-    ```
-2.  Open **Chrome** and navigate to `chrome://extensions/`.
-3.  Enable **Developer mode** (toggle in the top right corner).
-4.  Click **Load unpacked**.
-5.  Select the `AdShieldPro` directory.
-6.  Enjoy a cleaner web! 🎉
-
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/gkhantyln/AdShieldPro.git
+   ```
+2. Open **Chrome** and navigate to `chrome://extensions/`.
+3. Enable **Developer mode** (toggle in the top right corner).
+4. Click **Load unpacked**.
+5. Select the `AdShieldPro` directory.
 
 ## 🔧 Technical Details
 
-- **Manifest V3:** Fully compliant with the latest Chrome extension standards for better security and performance.
-- **Declarative Net Request:** Uses the native browser API for efficient blocking without inspecting page content unnecessarily.
-- **Dynamic Content Scripting:** Injector, blocker, and picker JS files are dynamically registered and unregistered on-the-fly depending on the extension's functional state.
-- **Heuristic Obfuscation Model:** Overrides deep browser components like `HTMLCanvasElement` and `AudioContext` prototypes by adding mathematical noise to disrupt digital fingerprinting algorithms.
-- **Semantic Text Analytics:** Debounced chunked-processing via `chrome.runtime.sendMessage` securely queries Google's Generative AI endpoint. Utilizes array fallback logic to bypass `HTTP 429` (Rate-limit) issues without blocking the main UI thread.
-- **MutationObserver:** Intelligently monitors DOM changes to catch ads that load dynamically after the page renders, as well as invisible 1x1 pixels.
+- **Manifest V3:** Chrome extension standartlarıyla tam uyumlu.
+- **Declarative Net Request:** Native browser API ile sayfa içeriğine dokunmadan engelleme.
+- **ABP Filter Parser:** `||domain^` formatındaki kuralları runtime'da DNR formatına parse eder. Cosmetic (`##`), snippet ve whitelist (`@@`) kuralları atlanır.
+- **Dynamic Content Scripting:** Eklenti durumuna göre script'ler dinamik olarak register/unregister edilir.
+- **Heuristic Obfuscation:** `HTMLCanvasElement` ve `AudioContext` prototype'larını override ederek fingerprinting algoritmalarını bozar.
+- **Semantic Text Analytics:** `chrome.runtime.sendMessage` üzerinden Google Generative AI endpoint'ini sorgular. HTTP 429 durumunda otomatik key rotasyonu yapar.
+- **Anti-Adblock Bypass:** `googletag`, `adsbygoogle`, `dataLayer` stub nesneleri ile adblock detector'ları yanıltır.
+- **MutationObserver:** Dinamik yüklenen reklamları ve 1x1 tracking pixel'leri yakalar.
 
 ## 🤝 Contributing
 
-We love open source! Contributions are welcome.
-
-1.  Fork the repository.
-2.  Create your feature branch (`git checkout -b feature/AmazingFeature`).
-3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4.  Push to the branch (`git push origin feature/AmazingFeature`).
-5.  Open a Pull Request.
+1. Fork the repository.
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 
 ## 👤 Author
 

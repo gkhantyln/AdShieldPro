@@ -113,6 +113,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const res = await sendMsg({ type: 'GET_STATE' });
     if (res.success) currentState = res;
 
+    // Filter lists
+    const flRes = await sendMsg({ type: 'GET_FILTER_LISTS' });
+    if (flRes.success) {
+      currentState.filterLists = flRes.lists;
+      currentState.customFilterLists = flRes.custom;
+    }
+
     // Dil senkronizasyonu
     const lang = currentState.preferredLanguage || 'auto';
     await localizeUI(lang); 
@@ -187,7 +194,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const cloudVerText = document.getElementById('cloudUpdateText');
     if (cloudVerText && currentState.cloudVersion) {
-        cloudVerText.textContent = (chrome.i18n.getMessage('versionLabel') || 'Sürüm') + ': ' + currentState.cloudVersion;
+        cloudVerText.textContent = 'Son güncelleme: ' + currentState.cloudVersion;
     }
 
     // Current site
@@ -300,6 +307,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const inputAutoClickMax = document.getElementById('inputAutoClickMax');
     if (inputAdSkipDuration) inputAdSkipDuration.value = currentState.adSkipDuration || 15;
     if (inputAutoClickMax) inputAutoClickMax.value = currentState.autoClickMax || 1;
+
+    // Filter Lists
+    renderFilterLists(currentState.filterLists || [], currentState.customFilterLists || []);
 
     // Footer Status Message
     if (!enabled) {
@@ -481,6 +491,56 @@ document.addEventListener('DOMContentLoaded', async () => {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  // ── Render Filter Lists ──────────────────
+  function renderFilterLists(lists, custom) {
+    const container = document.getElementById('filterListsContainer');
+    const customContainer = document.getElementById('customListsContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+    lists.forEach(list => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; justify-content:space-between; background:rgba(30,41,59,0.5); padding:8px 10px; border-radius:7px; border:1px solid rgba(51,65,85,0.5);';
+      row.innerHTML = `
+        <span style="font-size:12px; color:#cbd5e1; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(list.url)}">${escapeHtml(list.name)}</span>
+        <label class="toggle-switch" style="transform:scale(0.75); margin:0; flex-shrink:0;">
+          <input type="checkbox" data-list-id="${list.id}" ${list.enabled ? 'checked' : ''} />
+          <span class="toggle-slider"></span>
+        </label>
+      `;
+      row.querySelector('input').addEventListener('change', async (e) => {
+        await sendMsg({ type: 'SET_FILTER_LIST_ENABLED', id: list.id, enabled: e.target.checked });
+      });
+      container.appendChild(row);
+    });
+
+    if (!customContainer) return;
+    customContainer.innerHTML = '';
+    if (custom.length === 0) return;
+
+    custom.forEach(list => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:6px; background:rgba(30,41,59,0.4); padding:6px 10px; border-radius:7px; border:1px solid rgba(51,65,85,0.4);';
+      row.innerHTML = `
+        <label class="toggle-switch" style="transform:scale(0.75); margin:0; flex-shrink:0;">
+          <input type="checkbox" ${list.enabled !== false ? 'checked' : ''} />
+          <span class="toggle-slider"></span>
+        </label>
+        <span style="font-size:11px; color:#94a3b8; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(list.url)}">${escapeHtml(list.name || list.url)}</span>
+        <button style="background:transparent; border:none; color:#ef4444; cursor:pointer; font-size:12px; padding:2px 4px;" data-remove-id="${list.id}">✕</button>
+      `;
+      row.querySelector('input').addEventListener('change', async () => {
+        await sendMsg({ type: 'TOGGLE_CUSTOM_LIST', id: list.id });
+        await loadState();
+      });
+      row.querySelector('[data-remove-id]').addEventListener('click', async () => {
+        await sendMsg({ type: 'REMOVE_CUSTOM_LIST', id: list.id });
+        await loadState();
+      });
+      customContainer.appendChild(row);
+    });
   }
 
   // ── Event Listeners ──────────────────────
@@ -713,23 +773,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Custom filter list add
+  const btnAddCustomList = document.getElementById('btnAddCustomList');
+  btnAddCustomList?.addEventListener('click', async () => {
+    const urlInput = document.getElementById('inputCustomListUrl');
+    const nameInput = document.getElementById('inputCustomListName');
+    const url = urlInput.value.trim();
+    if (!url || !url.startsWith('http')) {
+      urlInput.style.borderColor = 'var(--accent-red)';
+      setTimeout(() => urlInput.style.borderColor = '', 1500);
+      return;
+    }
+    await sendMsg({ type: 'ADD_CUSTOM_LIST', url, name: nameInput.value.trim() || url });
+    urlInput.value = '';
+    nameInput.value = '';
+    await loadState();
+  });
+
   const btnUpdateCloud = document.getElementById('btnUpdateCloud');
   btnUpdateCloud?.addEventListener('click', async () => {
       btnUpdateCloud.textContent = '...';
+      btnUpdateCloud.disabled = true;
       const res = await sendMsg({ type: 'FETCH_CLOUD_RULES' });
+      btnUpdateCloud.disabled = false;
       if (res.success) {
-          btnUpdateCloud.textContent = '✓';
-          setTimeout(() => { 
-              const msg = chrome.i18n.getMessage('updateNow') || 'Güncelle';
-              btnUpdateCloud.textContent = msg; 
-          }, 2000);
+          btnUpdateCloud.textContent = `✓ (${res.ruleCount || 0})`;
+          setTimeout(() => { btnUpdateCloud.textContent = chrome.i18n.getMessage('updateNow') || 'Güncelle'; }, 2500);
           await loadState();
       } else {
-          btnUpdateCloud.textContent = '✕';
-          setTimeout(() => { 
-              const msg = chrome.i18n.getMessage('updateNow') || 'Güncelle';
-              btnUpdateCloud.textContent = msg; 
-          }, 2000);
+          btnUpdateCloud.textContent = '✕ Hata';
+          setTimeout(() => { btnUpdateCloud.textContent = chrome.i18n.getMessage('updateNow') || 'Güncelle'; }, 2000);
       }
   });
 
@@ -765,6 +838,104 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadState();
   });
 
+  // ── Parental Control ─────────────────────
+  const parentalToggle = document.getElementById('parentalToggle');
+  const parentalStatusText = document.getElementById('parentalStatusText');
+
+  async function loadParentalStatus() {
+    const res = await sendMsg({ type: 'GET_PARENTAL_STATUS' });
+    if (!res.success) return;
+    if (parentalToggle) parentalToggle.checked = res.enabled;
+    if (parentalStatusText) {
+      if (res.enabled && res.domainCount > 0) {
+        const lastUpdate = res.lastUpdate
+          ? new Date(res.lastUpdate).toLocaleDateString('tr-TR')
+          : '—';
+        parentalStatusText.textContent = `${res.domainCount.toLocaleString()} alan adı yüklü · ${lastUpdate}`;
+      } else if (res.enabled && res.domainCount === 0) {
+        parentalStatusText.textContent = 'Liste indiriliyor...';
+      } else {
+        parentalStatusText.textContent = '500.000+ alan adı veritabanı';
+      }
+    }
+  }
+
+  parentalToggle?.addEventListener('change', async () => {
+    const enabled = parentalToggle.checked;
+    if (parentalStatusText) parentalStatusText.textContent = enabled ? 'Liste indiriliyor...' : '500.000+ alan adı veritabanı';
+    parentalToggle.disabled = true;
+    await sendMsg({ type: 'SET_PARENTAL_ENABLED', enabled });
+    parentalToggle.disabled = false;
+    await loadParentalStatus();
+  });
+
+  await loadParentalStatus();
+
+  // ── Blocked Sites ────────────────────────
+  async function loadBlockedSites() {
+    const res = await sendMsg({ type: 'GET_BLOCKED_SITES' });
+    if (res.success) renderBlockedSites(res.blockedSites || []);
+  }
+
+  function renderBlockedSites(sites) {
+    const container = document.getElementById('blockedSitesList');
+    const empty = document.getElementById('emptyBlockedSites');
+    if (!container) return;
+    container.innerHTML = '';
+    if (sites.length === 0) {
+      container.appendChild(empty || (() => {
+        const d = document.createElement('div');
+        d.id = 'emptyBlockedSites';
+        d.style.cssText = 'font-size:11px; color:#475569; text-align:center; padding:8px;';
+        d.textContent = 'Henüz engellenen site yok';
+        return d;
+      })());
+      return;
+    }
+    sites.forEach(site => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:center; gap:6px; background:rgba(239,68,68,0.07); padding:6px 10px; border-radius:7px; border:1px solid rgba(239,68,68,0.15);';
+      const icon = site.redirect === 'google' ? '🔍' : '🛡️';
+      row.innerHTML = `
+        <span style="font-size:13px;">${icon}</span>
+        <span style="font-size:12px; color:#fca5a5; flex:1; font-family:monospace;">${escapeHtml(site.domain)}</span>
+        <select data-domain="${escapeHtml(site.domain)}" class="block-redirect-sel" style="font-size:10px; padding:2px 4px; background:#0f172a; color:#94a3b8; border:1px solid #334155; border-radius:4px;">
+          <option value="block" ${site.redirect==='block'?'selected':''}>Engel Sayfası</option>
+          <option value="google" ${site.redirect==='google'?'selected':''}>Google</option>
+        </select>
+        <button data-domain="${escapeHtml(site.domain)}" class="block-remove-btn" style="background:transparent; border:none; color:#ef4444; cursor:pointer; font-size:12px; padding:2px 4px;">✕</button>
+      `;
+      row.querySelector('.block-redirect-sel').addEventListener('change', async (e) => {
+        await sendMsg({ type: 'UPDATE_BLOCKED_SITE', domain: site.domain, redirect: e.target.value });
+      });
+      row.querySelector('.block-remove-btn').addEventListener('click', async () => {
+        await sendMsg({ type: 'REMOVE_BLOCKED_SITE', domain: site.domain });
+        await loadBlockedSites();
+      });
+      container.appendChild(row);
+    });
+  }
+
+  const btnAddBlockSite = document.getElementById('btnAddBlockSite');
+  btnAddBlockSite?.addEventListener('click', async () => {
+    const input = document.getElementById('inputBlockSite');
+    const redirect = document.getElementById('selectBlockRedirect').value;
+    const domain = input.value.trim();
+    if (!domain) {
+      input.style.borderColor = 'var(--accent-red)';
+      setTimeout(() => input.style.borderColor = '', 1500);
+      return;
+    }
+    await sendMsg({ type: 'ADD_BLOCKED_SITE', domain, redirect });
+    input.value = '';
+    await loadBlockedSites();
+  });
+
+  document.getElementById('inputBlockSite')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') btnAddBlockSite?.click();
+  });
+
+  await loadBlockedSites();
+
   // ── Init ─────────────────────────────────
-  await loadState();
-});
+  await loadState();});

@@ -19,7 +19,7 @@
             </div>
             <div class="header-text">
                 <h1 data-i18n="appName">AdShield Pro</h1>
-                <span class="version">v2.1 Pro</span>
+                <span class="version">v2.2 Pro</span>
             </div>
             <label class="toggle-switch" id="mainToggle" title="Açma / Kapama">
                 <input type="checkbox" checked />
@@ -236,13 +236,34 @@
             </div>
 
             <h3 class="section-title" style="margin-top: 16px;" data-i18n="cloudTitle">Bulut Listeleri (Cloud Rules)</h3>
-            <div class="cloud-section" style="background: rgba(16, 185, 129, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                    <span style="font-size: 13px; font-weight: 600; color: #34d399;">EasyList + AdShield Cloud</span>
-                    <span style="font-size: 10px; color: #94a3b8;" id="cloudUpdateText">Sürüm: v2.1 (Güncel)</span>
-                </div>
-                <button class="btn-primary" id="btnUpdateCloud" style="padding: 6px 10px; font-size: 11px;" data-i18n="updateNow">Güncelle</button>
+            <!-- Uyarı Banner -->
+            <div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.4); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 8px; align-items: flex-start;">
+              <span style="font-size: 16px; flex-shrink:0;">⚠️</span>
+              <div style="font-size: 11px; color: #fca5a5; line-height: 1.6;">
+                <strong style="color:#f87171; display:block; margin-bottom:3px;">Dikkat: Performans Uyarısı</strong>
+                Çok fazla liste açmak Chrome'un <strong style="color:#fcd34d;">5.000 kural limitini</strong> aşabilir ve bazı kuralların yüklenmemesine neden olur. Aynı anda <strong style="color:#fcd34d;">en fazla 2–3 liste</strong> açmanız önerilir.<br/>
+                Liste ekledikten veya değiştirdikten sonra mutlaka <strong style="color:#86efac;">"Güncelle" butonuna basın</strong> — aksi hâlde değişiklikler aktif olmaz.
+              </div>
             </div>
+            <div id="filterListsContainer" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;">
+              <!-- Filter list toggles rendered by JS -->
+            </div>
+            <!-- Custom List Add -->
+            <div style="background: rgba(30, 41, 59, 0.5); padding: 10px; border-radius: 8px; border: 1px solid rgba(51, 65, 85, 0.5); margin-bottom: 6px;">
+              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px; font-weight: 600;">Özel Liste Ekle</div>
+              <div class="input-group" style="margin-bottom: 4px;">
+                <input type="text" id="inputCustomListName" placeholder="Liste adı (opsiyonel)" class="input-field" style="font-size: 11px; padding: 5px 8px;" />
+              </div>
+              <div class="input-group">
+                <input type="text" id="inputCustomListUrl" placeholder="https://example.com/list.txt" class="input-field" style="font-size: 11px; padding: 5px 8px;" />
+                <button class="btn-primary btn-sm-inline" id="btnAddCustomList" style="padding: 5px 10px; font-size: 11px; white-space: nowrap;">+ Ekle</button>
+              </div>
+            </div>
+            <div id="customListsContainer" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px;"></div>
+            <div style="display: flex; justify-content: flex-end;">
+              <button class="btn-primary" id="btnUpdateCloud" style="padding: 6px 12px; font-size: 11px;" data-i18n="updateNow">Güncelle</button>
+            </div>
+            <div style="font-size: 10px; color: #64748b; margin-top: 4px;" id="cloudUpdateText">Son güncelleme: —</div>
 
             <h3 class="section-title" style="margin-top: 16px;" data-i18n="aiFilterTitle">Yapay Zeka (AI) İçerik Filtresi</h3>
             <div class="ai-filter-section" style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 8px; border: 1px solid rgba(51, 65, 85, 0.5);">
@@ -294,8 +315,58 @@
                 </div>
             </div>
 
-            <h3 class="section-title" style="margin-top: 16px;" data-i18n="pauseTitle">Geçici Duraklat</h3>
-            <div class="pause-options">
+            <h3 class="section-title" style="margin-top: 16px;">🔒 Site Engelleme (Ebeveyn Kontrolü)</h3>
+            <!-- Parental Control Toggle -->
+            <div style="background: rgba(239,68,68,0.06); padding: 12px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.2); margin-bottom: 8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <div>
+                  <div style="font-size:13px; font-weight:600; color:#fca5a5;">🛡️ Yetişkin İçerik Filtresi</div>
+                  <div style="font-size:10px; color:#64748b; margin-top:2px;" id="parentalStatusText">100.000+ alan adı veritabanı</div>
+                </div>
+                <label class="toggle-switch" style="transform:scale(0.85); margin:0; flex-shrink:0;">
+                  <input type="checkbox" id="parentalToggle" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div style="font-size:10px; color:#475569; line-height:1.5;">
+                Aktif edildiğinde liste indirilir (~ilk açılışta birkaç saniye). Engellenen sitelere girildiğinde sayfa bulanıklaşır ve engel ekranına yönlendirilir.
+              </div>
+            </div>
+            <div style="background: rgba(239,68,68,0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.2); margin-bottom: 6px;">
+              <div class="input-group" style="margin-bottom: 6px;">
+                <input type="text" id="inputBlockSite" placeholder="Domain (örn: tiktok.com)" class="input-field" style="font-size: 12px; padding: 6px 10px;" />
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <span style="font-size: 11px; color: #94a3b8; white-space: nowrap;">Yönlendir:</span>
+                <select id="selectBlockRedirect" class="input-field" style="font-size: 11px; padding: 4px 8px; flex:1; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                  <option value="block">🛡️ Engel Sayfası (AdShield)</option>
+                  <option value="google">🔍 Google'a Yönlendir</option>
+                </select>
+                <button class="btn-primary btn-sm-inline" id="btnAddBlockSite" style="padding: 5px 12px; font-size: 11px; white-space: nowrap; background: #dc2626;">+ Ekle</button>
+              </div>
+              <div id="blockedSitesList" style="display: flex; flex-direction: column; gap: 4px; max-height: 140px; overflow-y: auto;">
+                <div id="emptyBlockedSites" style="font-size: 11px; color: #475569; text-align: center; padding: 8px;">Henüz engellenen site yok</div>
+              </div>
+              <div style="margin-top: 8px; padding: 8px 10px; background: rgba(15,23,42,0.6); border-radius: 6px; border: 1px solid rgba(51,65,85,0.4);">
+                <div style="font-size: 10px; color: #64748b; font-weight: 600; margin-bottom: 5px; letter-spacing: 0.4px;">📌 PATTERN KULLANIMI</div>
+                <div style="display: flex; flex-direction: column; gap: 3px;">
+                  <div style="display:flex; gap:6px; align-items:baseline;">
+                    <code style="font-size:10px; color:#f87171; background:rgba(239,68,68,0.1); padding:1px 5px; border-radius:3px; white-space:nowrap;">site.com</code>
+                    <span style="font-size:10px; color:#475569;">→ site.com ve tüm subdomainleri (www, tr, m…)</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:baseline;">
+                    <code style="font-size:10px; color:#f87171; background:rgba(239,68,68,0.1); padding:1px 5px; border-radius:3px; white-space:nowrap;">*.site.com</code>
+                    <span style="font-size:10px; color:#475569;">→ sadece subdomainler (tr.site.com, m.site.com)</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:baseline;">
+                    <code style="font-size:10px; color:#f87171; background:rgba(239,68,68,0.1); padding:1px 5px; border-radius:3px; white-space:nowrap;">*.site.*</code>
+                    <span style="font-size:10px; color:#475569;">→ her uzantıda engelle (.net, .org, .co.uk…)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 16px;" data-i18n="pauseTitle">Geçici Duraklat</h3>            <div class="pause-options">
                 <button class="pause-btn" data-minutes="30" data-i18n="min30">30 dk</button>
                 <button class="pause-btn" data-minutes="60" data-i18n="hour1">1 saat</button>
                 <button class="pause-btn" data-minutes="180" data-i18n="hour3">3 saat</button>

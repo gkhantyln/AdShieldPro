@@ -3,6 +3,71 @@
  * Engeller: Canvas Fingerprinting, WebRTC IP Sızıntıları, Audio Fingerprinting, 1x1 Tracking Pixels
  */
 (() => {
+  // ── Anti Adblock Detection ───────────────────────────────────────────────
+  // Siteler googletag, adsbygoogle gibi global değişkenlerin undefined olup
+  // olmadığını kontrol ederek reklam engelleyici tespiti yapar.
+  // Sahte (no-op) nesneler tanımlayarak bu tespiti engelliyoruz.
+  try {
+    // googletag stub
+    if (!window.googletag) {
+      window.googletag = {
+        cmd: { push: (fn) => { try { fn(); } catch(e) {} } },
+        defineSlot: () => ({ addService: () => ({}) }),
+        pubads: () => ({
+          enableSingleRequest: () => {},
+          collapseEmptyDivs: () => {},
+          addEventListener: () => {},
+          setTargeting: () => {},
+          refresh: () => {},
+          disableInitialLoad: () => {},
+        }),
+        enableServices: () => {},
+        display: () => {},
+        destroySlots: () => {},
+      };
+    }
+
+    // adsbygoogle stub
+    if (!window.adsbygoogle) {
+      window.adsbygoogle = { push: () => {} };
+      // push çağrılarını sessizce yut
+      const _push = window.adsbygoogle.push.bind(window.adsbygoogle);
+      window.adsbygoogle.push = (obj) => { try { if (typeof obj === 'function') obj(); } catch(e) {} };
+    }
+
+    // _gaq (eski Google Analytics) stub
+    if (!window._gaq) {
+      window._gaq = { push: () => {} };
+    }
+
+    // dataLayer stub (GTM)
+    if (!window.dataLayer) {
+      window.dataLayer = [];
+      window.dataLayer.push = () => {};
+    }
+
+    // yahoojsbid stub
+    if (!window.yahoojsbid) window.yahoojsbid = {};
+
+    // Bait element fetch tespitini engelle:
+    // Bazı siteler /ads/pixel.gif veya /ad.js gibi URL'lere fetch atarak
+    // engellenip engellenmediğini kontrol eder. Bunları başarılı gibi göster.
+    const _origFetch = window.fetch;
+    window.fetch = function(input, init) {
+      const url = (input instanceof Request ? input.url : String(input || '')).toLowerCase();
+      const adBaitPatterns = [
+        '/ads/pixel', '/ad.js', '/ads.js', '/adframe', '/pagead',
+        'adsbygoogle', 'doubleclick.net', 'googlesyndication',
+        '/bait', '/adbait', '/adtest', '/adsense'
+      ];
+      if (adBaitPatterns.some(p => url.includes(p))) {
+        // Başarılı boş response döndür
+        return Promise.resolve(new Response('', { status: 200 }));
+      }
+      return _origFetch.apply(this, arguments);
+    };
+  } catch(e) {}
+  // ────────────────────────────────────────────────────────────────────────
   // 1. Canvas Fingerprinting Koruması
   // İzleyiciler genelde gizli bir canvas oluşturup cihazın grafik performansına göre eşsiz bir ID (hash) üretir.
   // Çözüm: Çizilen resme mikroskobik matematiksel bir "gürültü" (noise) ekleyerek cihazın hash'ini bozarız.
