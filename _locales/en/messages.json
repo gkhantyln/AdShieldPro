@@ -60,5 +60,6 @@
   "gamData": { "message": "DATA PROTECTED" },
   "totalStopped": { "message": "A total of $count$ malicious contents stopped", "placeholders": { "count": { "content": "$1" } } },
   "protected": { "message": "Protected" },
-  "unprotected": { "message": "Not Protected" }
+  "unprotected": { "message": "Not Protected" },
+  "ytUltraProtected": { "message": "⚡ Ultra Protection" }
 }

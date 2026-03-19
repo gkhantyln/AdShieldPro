@@ -60,5 +60,6 @@
   "gamData": { "message": "KORUNAN KOTA" },
   "totalStopped": { "message": "Toplam $count$ zararlı içerik durduruldu", "placeholders": { "count": { "content": "$1" } } },
   "protected": { "message": "Korunuyor" },
-  "unprotected": { "message": "Korunmuyor" }
+  "unprotected": { "message": "Korunmuyor" },
+  "ytUltraProtected": { "message": "⚡ Ultra Koruma" }
 }

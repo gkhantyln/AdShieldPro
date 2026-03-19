@@ -28,25 +28,26 @@
 
   // ── Reklam Tespiti ────────────────────────────────────────────────────
   // YouTube'un reklam gösterdiğini anlamak için kullandığı tüm sinyaller
+  // En az 2 sinyal eşleşmeli — yanlış pozitifi önler
   function isAdPlaying() {
-    if (document.querySelector('.ad-showing'))           return true;
-    if (document.querySelector('.ad-interrupting'))      return true;
-    if (document.querySelector('.ytp-ad-player-overlay')) return true;
-    if (document.querySelector('.ytp-ad-text'))          return true;
-    if (document.querySelector('.ytp-ad-message-container')) return true;
-    if (document.querySelector('.ytp-ad-preview-container')) return true;
+    let signals = 0;
 
-    // Video element üzerinden kontrol
-    const video = select('video');
-    if (video) {
-      const player = select('#movie_player');
-      if (player && player.classList.contains('ad-showing')) return true;
-    }
+    if (document.querySelector('.ad-showing'))            signals++;
+    if (document.querySelector('.ad-interrupting'))       signals++;
+    if (document.querySelector('.ytp-ad-player-overlay')) signals++;
+    if (document.querySelector('.ytp-ad-text'))           signals++;
+    if (document.querySelector('.ytp-ad-message-container')) signals++;
+    if (document.querySelector('.ytp-ad-preview-container')) signals++;
+
+    // Player class kontrolü
+    const player = document.querySelector('#movie_player');
+    if (player && player.classList.contains('ad-showing')) signals++;
 
     // ytd-player-legacy-desktop-watch-ads-renderer
-    if (document.querySelector('ytd-player-legacy-desktop-watch-ads-renderer')) return true;
+    if (document.querySelector('ytd-player-legacy-desktop-watch-ads-renderer')) signals++;
 
-    return false;
+    // En az 2 sinyal gerekli — tek sinyal yanlış pozitif olabilir
+    return signals >= 2;
   }
 
   // ── Skip Butonu ───────────────────────────────────────────────────────
@@ -92,7 +93,8 @@
       const skipped = skipVideoAd();
 
       // Skip olmadıysa sona atla
-      if (!skipped && Number.isFinite(video.duration) && video.duration > 0) {
+      // Güvenlik: sadece kısa videolarda (reklam) atla, uzun videolara dokunma
+      if (!skipped && Number.isFinite(video.duration) && video.duration > 0 && video.duration < 120) {
         try {
           if (video.currentTime < video.duration - 0.1) {
             video.currentTime = video.duration - 0.1;

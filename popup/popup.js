@@ -159,7 +159,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const unprotectedText = chrome.i18n.getMessage('unprotected') || 'Korunmuyor';
     
     if (ytStatus) {
-      ytStatus.textContent = isActive ? protectedText : unprotectedText;
+      ytStatus.textContent = isActive
+        ? (chrome.i18n.getMessage('ytUltraProtected') || 'Ultra Güçlü Koruma')
+        : unprotectedText;
       ytStatus.classList.toggle('text-green', isActive);
       ytStatus.classList.toggle('text-red', !isActive);
     }
