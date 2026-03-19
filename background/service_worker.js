@@ -11,10 +11,50 @@ const YT_MATCHES = [
   '*://m.youtube.com/*'
 ];
 
+// ── Sync Storage Helpers (chunk desteğiyle) ──────────
+// chrome.storage.sync limiti: toplam 100KB, item başına 8KB
+// Büyük array'leri 6KB'lık parçalara bölerek saklarız.
+const SYNC_CHUNK_SIZE = 6000; // karakter
+
+async function syncSet(key, value) {
+  const json = JSON.stringify(value);
+  const keysToRemove = [];
+  // Eski chunk key'lerini temizle
+  const existing = await chrome.storage.sync.get(null);
+  for (const k of Object.keys(existing)) {
+    if (k.startsWith(key + '_c')) keysToRemove.push(k);
+  }
+  if (keysToRemove.length) await chrome.storage.sync.remove(keysToRemove);
+
+  if (json.length <= SYNC_CHUNK_SIZE) {
+    await chrome.storage.sync.set({ [key]: value, [key + '_n']: 0 });
+  } else {
+    const chunks = [];
+    for (let i = 0; i < json.length; i += SYNC_CHUNK_SIZE) {
+      chunks.push(json.slice(i, i + SYNC_CHUNK_SIZE));
+    }
+    const obj = { [key + '_n']: chunks.length };
+    chunks.forEach((c, i) => { obj[key + '_c' + i] = c; });
+    await chrome.storage.sync.remove(key);
+    await chrome.storage.sync.set(obj);
+  }
+}
+
+async function syncGet(key, defaultValue) {
+  const data = await chrome.storage.sync.get(null);
+  const n = data[key + '_n'];
+  if (n && n > 0) {
+    let json = '';
+    for (let i = 0; i < n; i++) json += (data[key + '_c' + i] || '');
+    try { return JSON.parse(json); } catch { return defaultValue; }
+  }
+  return (data[key] !== undefined) ? data[key] : defaultValue;
+}
+
 // ── Enabled / Badge ──────────────────────────────────
 async function getEnabled() {
-  const { [STORAGE_KEY_ENABLED]: enabled } = await chrome.storage.local.get({ [STORAGE_KEY_ENABLED]: true });
-  return Boolean(enabled);
+  const val = await syncGet(STORAGE_KEY_ENABLED, true);
+  return Boolean(val);
 }
 
 async function setBadge(enabled) {
@@ -148,41 +188,64 @@ async function updateParentalScript(enabled) {
 
 async function init() {
   await updateEffectiveState();
-  const d = await chrome.storage.local.get({ blockedSites: [], parentalEnabled: false });
-  if (d.blockedSites.length > 0) await applyBlockedSiteRules(d.blockedSites);
+  const blockedSites = await syncGet('blockedSites', []);
+  const { parentalEnabled } = await chrome.storage.local.get({ parentalEnabled: false });
+  if (blockedSites.length > 0) await applyBlockedSiteRules(blockedSites);
   else await loadBlockedSiteMap();
-  if (d.parentalEnabled) {
+  if (parentalEnabled) {
     await loadParentalList();
     await updateParentalScript(true);
   }
 }
-chrome.runtime.onInstalled.addListener(async () => {  // ── Storage Migration (Limitli Sync Kullanımı) ────────
-  // sync sadece küçük veriler için kullanılacak (8KB sınırı var)
-  const localData = await chrome.storage.local.get(['aiEnabled', 'aiKeys']);
-  const syncData = await chrome.storage.sync.get();
+chrome.runtime.onInstalled.addListener(async () => {
+  // ── Storage Migration → Sync ──────────────────────
+  // Local'deki mevcut verileri sync'e taşı (ilk kurulum veya güncelleme)
+  const localData = await chrome.storage.local.get([
+    'aiEnabled', 'aiKeys',
+    STORAGE_KEY_ENABLED, STORAGE_KEY_WHITELIST, STORAGE_KEY_CUSTOM_RULES,
+    'preferredLanguage', 'blockedSites'
+  ]);
+  const syncData = await chrome.storage.sync.get(null);
 
-  const syncMigration = {};
+  // aiEnabled / aiKeys (zaten sync'teydi, sadece local'den taşı)
   if (localData.aiEnabled !== undefined && syncData.aiEnabled === undefined) {
-    syncMigration.aiEnabled = localData.aiEnabled;
+    await chrome.storage.sync.set({ aiEnabled: localData.aiEnabled });
   }
-  if (localData.aiKeys && (!syncData.aiKeys || syncData.aiKeys.length === 0)) {
-    syncMigration.aiKeys = localData.aiKeys;
-  }
-
-  if (Object.keys(syncMigration).length > 0) {
-    try {
-      await chrome.storage.sync.set(syncMigration);
-    } catch(e) { console.warn('Sync failed (quota?):', e); }
+  if (localData.aiKeys?.length && !syncData.aiKeys?.length) {
+    await chrome.storage.sync.set({ aiKeys: localData.aiKeys });
   }
 
-  // Kurallar ve Beyaz Liste boyutu belirsiz olduğu için LOCAL'de kalmalı
-  const mainData = await chrome.storage.local.get([STORAGE_KEY_CUSTOM_RULES, STORAGE_KEY_WHITELIST, STORAGE_KEY_ENABLED]);
-  if (!mainData[STORAGE_KEY_CUSTOM_RULES]) await chrome.storage.local.set({ [STORAGE_KEY_CUSTOM_RULES]: [] });
-  if (!mainData[STORAGE_KEY_WHITELIST]) await chrome.storage.local.set({ [STORAGE_KEY_WHITELIST]: [] });
-  if (mainData[STORAGE_KEY_ENABLED] === undefined) await chrome.storage.local.set({ [STORAGE_KEY_ENABLED]: true });
+  // enabled
+  const enabledVal = syncData[STORAGE_KEY_ENABLED] !== undefined
+    ? syncData[STORAGE_KEY_ENABLED]
+    : (localData[STORAGE_KEY_ENABLED] !== undefined ? localData[STORAGE_KEY_ENABLED] : true);
+  await syncSet(STORAGE_KEY_ENABLED, enabledVal);
 
+  // whitelist
+  const wl = await syncGet(STORAGE_KEY_WHITELIST, null);
+  if (wl === null) {
+    await syncSet(STORAGE_KEY_WHITELIST, localData[STORAGE_KEY_WHITELIST] || []);
+  }
 
-  // Varsayılan local stats
+  // customRules
+  const cr = await syncGet(STORAGE_KEY_CUSTOM_RULES, null);
+  if (cr === null) {
+    await syncSet(STORAGE_KEY_CUSTOM_RULES, localData[STORAGE_KEY_CUSTOM_RULES] || []);
+  }
+
+  // preferredLanguage
+  const lang = await syncGet('preferredLanguage', null);
+  if (lang === null) {
+    await syncSet('preferredLanguage', localData.preferredLanguage || 'auto');
+  }
+
+  // blockedSites
+  const bs = await syncGet('blockedSites', null);
+  if (bs === null) {
+    await syncSet('blockedSites', localData.blockedSites || []);
+  }
+
+  // Varsayılan local stats (local'de kalır — çok büyük)
   const stats = await chrome.storage.local.get(STORAGE_KEY_STATS);
   if (!stats[STORAGE_KEY_STATS]) {
     await chrome.storage.local.set({ [STORAGE_KEY_STATS]: { total: 0, daily: {}, byDomain: {} } });
@@ -190,8 +253,8 @@ chrome.runtime.onInstalled.addListener(async () => {  // ── Storage Migratio
 
   // Periyodik Güncelleme Alarmları
   chrome.alarms.create('cloudUpdate', { periodInMinutes: 8 * 60 });
-  chrome.alarms.create('checkState', { periodInMinutes: 1 }); // Her dakika kontrol
-  
+  chrome.alarms.create('checkState', { periodInMinutes: 1 });
+
   await init();
 });
 
@@ -201,8 +264,17 @@ chrome.runtime.onStartup.addListener(() => {
 
 // ── Storage Değişiklikleri ───────────────────────────
 chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area === 'sync' || (area === 'local' && (STORAGE_KEY_PAUSE_UNTIL in changes || STORAGE_KEY_ENABLED in changes))) {
+  // Sync'teki enabled değişirse veya local'deki pauseUntil değişirse state güncelle
+  if (
+    (area === 'sync' && STORAGE_KEY_ENABLED in changes) ||
+    (area === 'local' && STORAGE_KEY_PAUSE_UNTIL in changes)
+  ) {
     await updateEffectiveState();
+  }
+  // Sync'teki blockedSites değişirse in-memory map'i güncelle
+  if (area === 'sync' && 'blockedSites' in changes) {
+    const sites = await syncGet('blockedSites', []);
+    await applyBlockedSiteRules(sites);
   }
 });
 
@@ -232,29 +304,29 @@ async function handleMessage(msg, sender) {
         aiKeys: []
       });
       const localData = await chrome.storage.local.get({
-        [STORAGE_KEY_CUSTOM_RULES]: [],
-        [STORAGE_KEY_WHITELIST]: [],
         [STORAGE_KEY_STATS]: { total: 0, daily: {}, byDomain: {} },
         [STORAGE_KEY_PAUSE_UNTIL]: 0,
         aiStats: { tokens: 0, blocked: 0 },
         cloudVersion: '1.0',
-        preferredLanguage: 'auto',
         [STORAGE_KEY_AD_SKIP_DURATION]: 15,
         [STORAGE_KEY_AUTO_CLICK_MAX]: 1
       });
+      const customRules  = await syncGet(STORAGE_KEY_CUSTOM_RULES, []);
+      const whitelist    = await syncGet(STORAGE_KEY_WHITELIST, []);
+      const preferredLanguage = await syncGet('preferredLanguage', 'auto');
       return {
         success: true,
         enabled,
         paused,
         pauseUntil: localData[STORAGE_KEY_PAUSE_UNTIL],
-        customRules: localData[STORAGE_KEY_CUSTOM_RULES],
-        whitelist: localData[STORAGE_KEY_WHITELIST],
+        customRules,
+        whitelist,
         stats: localData[STORAGE_KEY_STATS],
         aiEnabled: syncData.aiEnabled,
         aiKeys: syncData.aiKeys,
         aiStats: localData.aiStats,
         cloudVersion: localData.cloudVersion,
-        preferredLanguage: localData.preferredLanguage,
+        preferredLanguage,
         adSkipDuration: localData[STORAGE_KEY_AD_SKIP_DURATION],
         autoClickMax: localData[STORAGE_KEY_AUTO_CLICK_MAX]
       };
@@ -269,7 +341,7 @@ async function handleMessage(msg, sender) {
     }
 
     case 'SET_LANGUAGE': {
-      await chrome.storage.local.set({ preferredLanguage: msg.lang });
+      await syncSet('preferredLanguage', msg.lang);
       return { success: true };
     }
 
@@ -350,8 +422,8 @@ async function handleMessage(msg, sender) {
     }
 
     case 'SET_ENABLED': {
-      await chrome.storage.local.set({ [STORAGE_KEY_ENABLED]: msg.enabled });
-      await updateEffectiveState(); // Anında güncelle
+      await syncSet(STORAGE_KEY_ENABLED, msg.enabled);
+      await updateEffectiveState();
       return { success: true };
     }
 
@@ -369,9 +441,7 @@ async function handleMessage(msg, sender) {
     }
 
     case 'ADD_CUSTOM_RULE': {
-      const data = await chrome.storage.local.get({ [STORAGE_KEY_CUSTOM_RULES]: [] });
-      const rules = data[STORAGE_KEY_CUSTOM_RULES] || [];
-      
+      const rules = await syncGet(STORAGE_KEY_CUSTOM_RULES, []);
       const exists = rules.some(r => r.selector === msg.rule.selector && r.domain === msg.rule.domain);
       if (!exists) {
         rules.push({
@@ -383,54 +453,49 @@ async function handleMessage(msg, sender) {
           source: msg.rule.source || 'manual',
           enabled: true
         });
-        await chrome.storage.local.set({ [STORAGE_KEY_CUSTOM_RULES]: rules });
+        await syncSet(STORAGE_KEY_CUSTOM_RULES, rules);
       }
       return { success: true, rules };
     }
 
     case 'DELETE_CUSTOM_RULE': {
-      const data2 = await chrome.storage.local.get({ [STORAGE_KEY_CUSTOM_RULES]: [] });
-      const rules2 = (data2[STORAGE_KEY_CUSTOM_RULES] || []).filter(r => r.id !== msg.ruleId);
-      await chrome.storage.local.set({ [STORAGE_KEY_CUSTOM_RULES]: rules2 });
+      const rules2 = (await syncGet(STORAGE_KEY_CUSTOM_RULES, [])).filter(r => r.id !== msg.ruleId);
+      await syncSet(STORAGE_KEY_CUSTOM_RULES, rules2);
       return { success: true, rules: rules2 };
     }
 
     case 'TOGGLE_CUSTOM_RULE': {
-      const data3 = await chrome.storage.local.get({ [STORAGE_KEY_CUSTOM_RULES]: [] });
-      const rules3 = data3[STORAGE_KEY_CUSTOM_RULES] || [];
+      const rules3 = await syncGet(STORAGE_KEY_CUSTOM_RULES, []);
       const rule = rules3.find(r => r.id === msg.ruleId);
       if (rule) {
         rule.enabled = !rule.enabled;
-        await chrome.storage.local.set({ [STORAGE_KEY_CUSTOM_RULES]: rules3 });
+        await syncSet(STORAGE_KEY_CUSTOM_RULES, rules3);
       }
       return { success: true, rules: rules3 };
     }
 
     case 'UPDATE_CUSTOM_RULE': {
-      const data4 = await chrome.storage.local.get({ [STORAGE_KEY_CUSTOM_RULES]: [] });
-      const rules4 = data4[STORAGE_KEY_CUSTOM_RULES] || [];
+      const rules4 = await syncGet(STORAGE_KEY_CUSTOM_RULES, []);
       const idx = rules4.findIndex(r => r.id === msg.ruleId);
       if (idx !== -1) {
         rules4[idx] = { ...rules4[idx], ...msg.updates };
-        await chrome.storage.local.set({ [STORAGE_KEY_CUSTOM_RULES]: rules4 });
+        await syncSet(STORAGE_KEY_CUSTOM_RULES, rules4);
       }
       return { success: true, rules: rules4 };
     }
 
     case 'ADD_WHITELIST': {
-      const data5 = await chrome.storage.local.get({ [STORAGE_KEY_WHITELIST]: [] });
-      const list = data5[STORAGE_KEY_WHITELIST] || [];
+      const list = await syncGet(STORAGE_KEY_WHITELIST, []);
       if (!list.includes(msg.domain)) {
         list.push(msg.domain);
-        await chrome.storage.local.set({ [STORAGE_KEY_WHITELIST]: list });
+        await syncSet(STORAGE_KEY_WHITELIST, list);
       }
       return { success: true, whitelist: list };
     }
 
     case 'REMOVE_WHITELIST': {
-      const data6 = await chrome.storage.local.get({ [STORAGE_KEY_WHITELIST]: [] });
-      const list2 = (data6[STORAGE_KEY_WHITELIST] || []).filter(d => d !== msg.domain);
-      await chrome.storage.local.set({ [STORAGE_KEY_WHITELIST]: list2 });
+      const list2 = (await syncGet(STORAGE_KEY_WHITELIST, [])).filter(d => d !== msg.domain);
+      await syncSet(STORAGE_KEY_WHITELIST, list2);
       return { success: true, whitelist: list2 };
     }
 
@@ -466,28 +531,26 @@ async function handleMessage(msg, sender) {
     }
 
     case 'EXPORT_RULES': {
-      const data8 = await chrome.storage.local.get({ [STORAGE_KEY_CUSTOM_RULES]: [] });
-      return { success: true, rules: data8[STORAGE_KEY_CUSTOM_RULES] };
+      const rules = await syncGet(STORAGE_KEY_CUSTOM_RULES, []);
+      return { success: true, rules };
     }
 
     case 'IMPORT_RULES': {
-      const data9 = await chrome.storage.local.get({ [STORAGE_KEY_CUSTOM_RULES]: [] });
-      const existing = data9[STORAGE_KEY_CUSTOM_RULES] || [];
+      const existing = await syncGet(STORAGE_KEY_CUSTOM_RULES, []);
       const imported = msg.rules || [];
-      
       for (const rule of imported) {
-        const exists = existing.some(r => r.selector === rule.selector && r.domain === rule.domain);
-        if (!exists) {
+        const dup = existing.some(r => r.selector === rule.selector && r.domain === rule.domain);
+        if (!dup) {
           existing.push({
             ...rule,
             id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
             createdAt: rule.createdAt || Date.now(),
-            source: 'import' || rule.source,
+            source: 'import',
             enabled: true
           });
         }
       }
-      await chrome.storage.local.set({ [STORAGE_KEY_CUSTOM_RULES]: existing });
+      await syncSet(STORAGE_KEY_CUSTOM_RULES, existing);
       return { success: true, rules: existing };
     }
 
@@ -565,34 +628,36 @@ async function handleMessage(msg, sender) {
     }
 
     case 'GET_BLOCKED_SITES': {
-      const d = await chrome.storage.local.get({ blockedSites: [] });
-      return { success: true, blockedSites: d.blockedSites };
+      const sites = await syncGet('blockedSites', []);
+      return { success: true, blockedSites: sites };
     }
 
     case 'ADD_BLOCKED_SITE': {
-      const d = await chrome.storage.local.get({ blockedSites: [] });
-      const list = d.blockedSites;
+      const list = await syncGet('blockedSites', []);
       const domain = msg.domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '').toLowerCase();
       if (!list.find(s => s.domain === domain)) {
         list.push({ domain, redirect: msg.redirect || 'block', createdAt: Date.now() });
-        await chrome.storage.local.set({ blockedSites: list });
+        await syncSet('blockedSites', list);
         await applyBlockedSiteRules(list);
       }
       return { success: true, blockedSites: list };
     }
 
     case 'REMOVE_BLOCKED_SITE': {
-      const d = await chrome.storage.local.get({ blockedSites: [] });
-      const list = d.blockedSites.filter(s => s.domain !== msg.domain);
-      await chrome.storage.local.set({ blockedSites: list });
+      const list = (await syncGet('blockedSites', [])).filter(s => s.domain !== msg.domain);
+      await syncSet('blockedSites', list);
       await applyBlockedSiteRules(list);
       return { success: true, blockedSites: list };
     }
 
     case 'UPDATE_BLOCKED_SITE': {
-      const d = await chrome.storage.local.get({ blockedSites: [] });
-      const item = d.blockedSites.find(s => s.domain === msg.domain);
-      if (item) { item.redirect = msg.redirect; await chrome.storage.local.set({ blockedSites: d.blockedSites }); await applyBlockedSiteRules(d.blockedSites); }
+      const list = await syncGet('blockedSites', []);
+      const item = list.find(s => s.domain === msg.domain);
+      if (item) {
+        item.redirect = msg.redirect;
+        await syncSet('blockedSites', list);
+        await applyBlockedSiteRules(list);
+      }
       return { success: true };
     }
 
@@ -672,10 +737,8 @@ const BLOCKED_SITE_RULE_BASE = 9000;
 let blockedSiteMap = null; // { domain: 'block'|'google' }
 
 async function loadBlockedSiteMap() {
-  const { blockedSites } = await chrome.storage.local.get({ blockedSites: [] });
-  // Her entry: { pattern: string, redirect: string }
-  // pattern'i regex'e çevir ve sakla
-  blockedSiteMap = (blockedSites || []).map(s => ({
+  const blockedSites = await syncGet('blockedSites', []);
+  blockedSiteMap = blockedSites.map(s => ({
     pattern: s.domain.toLowerCase(),
     regex: patternToRegex(s.domain.toLowerCase()),
     redirect: s.redirect || 'block'

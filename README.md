@@ -65,11 +65,30 @@ Ayarlar → Bulut Listeleri → "Özel Liste Ekle" bölümüne herhangi bir ABP/
 
 ## 🆕 v2.2 Değişiklikleri
 
+- **Çoklu Cihaz Sync:** Özel kurallar, whitelist, engellenen siteler ve ayarlar artık `chrome.storage.sync` üzerinden tüm Chrome cihazlarınıza otomatik senkronize edilir.
 - **Ebeveyn Kontrolü:** 100.000+ domainlik yetişkin içerik listesi entegrasyonu. `webNavigation.onBeforeNavigate` ile sayfa yüklenmeden anında engelleme.
 - **Manuel Site Engelleme:** Wildcard pattern desteği (`site.com`, `*.site.com`, `*.site.*`). Engelleme `webNavigation` ile anlık, içerik hiç görünmez.
 - **Engel Sayfası (blocked.html):** Yeniden tasarlandı. Domain adı, tarih ve saat bilgisi gösterilir. CSP uyumlu harici JS dosyasına taşındı.
 - **webNavigation Permission:** Daha hızlı ve güvenilir engelleme için `webNavigation` izni eklendi.
 - **Pattern Bilgilendirmesi:** Popup'ta kullanıcıya wildcard kullanımı açıklandı.
+
+## 🔄 Çoklu Cihaz Senkronizasyonu
+
+Chrome hesabınıza giriş yaptığınız tüm cihazlarda ayarlarınız otomatik olarak senkronize edilir.
+
+| Veri | Sync | Açıklama |
+|------|------|----------|
+| Açma/Kapama durumu | ✅ | Bir cihazda kapattığınızda diğerlerinde de kapanır |
+| Whitelist (Muaf siteler) | ✅ | Eklediğiniz muaf siteler tüm cihazlarda geçerli |
+| Özel CSS kuralları | ✅ | Element picker ile oluşturulan kurallar senkronize edilir |
+| Manuel engellenen siteler | ✅ | Site engelleme listesi tüm cihazlarda aktif |
+| Dil tercihi | ✅ | TR/EN seçimi tüm cihazlara yansır |
+| AI anahtarları & modeller | ✅ | Gemini API key'leri cihazlar arası paylaşılır |
+| İstatistikler | ❌ | Cihaza özel, senkronize edilmez |
+| Bulut liste cache | ❌ | Cihaza özel, her cihaz kendi listesini indirir |
+| Ebeveyn listesi cache | ❌ | Cihaza özel, her cihaz kendi listesini indirir |
+
+> **Not:** `chrome.storage.sync` limiti toplam ~100KB'dır. Çok fazla özel kural eklenirse büyük kurallar otomatik olarak parçalara bölünerek saklanır.
 
 ## 👨‍👩‍👧 Ebeveyn Kontrolü & Site Engelleme
 

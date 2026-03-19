@@ -4,21 +4,31 @@
  */
 (() => {
   const STORAGE_KEY = 'customRules';
-  const STORAGE_WHITELIST = 'whitelist';
   let appliedStyleEl = null;
   const currentDomain = window.location.hostname;
 
   // Kuralları yükle ve uygula
   async function applyCustomRules() {
     try {
-      // Bir kerede tüm veriyi çekerek gecikmeyi azaltalım
-      const data = await chrome.storage.local.get({ 
-        [STORAGE_WHITELIST]: [], 
-        [STORAGE_KEY]: [] 
-      });
-      
-      const whitelist = data[STORAGE_WHITELIST] || [];
-      const rules = data[STORAGE_KEY] || [];
+      // customRules ve whitelist artık sync'te, stats local'de
+      const [syncData, localData] = await Promise.all([
+        new Promise(resolve => chrome.storage.sync.get(null, resolve)),
+        chrome.storage.local.get({ [STORAGE_KEY]: [] })
+      ]);
+
+      // syncGet mantığını inline uygula
+      function readSync(key, def) {
+        const n = syncData[key + '_n'];
+        if (n && n > 0) {
+          let json = '';
+          for (let i = 0; i < n; i++) json += (syncData[key + '_c' + i] || '');
+          try { return JSON.parse(json); } catch { return def; }
+        }
+        return syncData[key] !== undefined ? syncData[key] : def;
+      }
+
+      const whitelist = readSync('whitelist', []);
+      const rules = readSync('customRules', localData[STORAGE_KEY] || []);
 
       // Whitelist kontrolü
       const isWhitelisted = whitelist.some(domain => 
@@ -94,12 +104,26 @@
 
   async function applyCloudCosmeticRules() {
     try {
-      const data = await chrome.storage.local.get({ cosmeticRules: [], [STORAGE_WHITELIST]: [] });
-      const whitelist = data[STORAGE_WHITELIST] || [];
+      const [syncData, localData] = await Promise.all([
+        new Promise(resolve => chrome.storage.sync.get(null, resolve)),
+        chrome.storage.local.get({ cosmeticRules: [] })
+      ]);
+
+      function readSync(key, def) {
+        const n = syncData[key + '_n'];
+        if (n && n > 0) {
+          let json = '';
+          for (let i = 0; i < n; i++) json += (syncData[key + '_c' + i] || '');
+          try { return JSON.parse(json); } catch { return def; }
+        }
+        return syncData[key] !== undefined ? syncData[key] : def;
+      }
+
+      const whitelist = readSync('whitelist', []);
       const isWhitelisted = whitelist.some(d => currentDomain === d || currentDomain.endsWith('.' + d));
       if (isWhitelisted) return;
 
-      const allRules = data.cosmeticRules || [];
+      const allRules = localData.cosmeticRules || [];
       if (allRules.length === 0) return;
 
       // Sadece bu domain'e uyan kuralları filtrele (generic + domain-specific)
@@ -161,12 +185,14 @@
 
   // Storage değişikliklerini dinle (yeni kural eklendiğinde güncelle)
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area !== 'local') return;
-    if (STORAGE_KEY in changes || STORAGE_WHITELIST in changes) {
-      applyCustomRules();
+    if (area === 'local') {
+      if ('cosmeticRules' in changes) applyCloudCosmeticRules();
     }
-    if ('cosmeticRules' in changes) {
-      applyCloudCosmeticRules();
+    if (area === 'sync') {
+      if ('customRules' in changes || 'customRules_n' in changes || 'whitelist' in changes || 'whitelist_n' in changes) {
+        applyCustomRules();
+      }
+      if ('cosmeticRules' in changes) applyCloudCosmeticRules();
     }
   });
 

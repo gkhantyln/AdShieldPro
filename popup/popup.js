@@ -963,13 +963,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadBlockedSites();
 
-  // ── Gerçek Zamanlı Sayfa Sayacı ──────────
+  // ── Gerçek Zamanlı Sayfa Sayacı + Sync Değişiklikleri ──────────
   chrome.storage.onChanged.addListener((changes, area) => {
+    // Local: sayfa sayacı güncelle
     if (area === 'local' && 'stats' in changes && activeTabHostname) {
       const byDomain = (changes.stats.newValue && changes.stats.newValue.byDomain) || {};
       const count = byDomain[activeTabHostname] || 0;
       const el = document.getElementById('pageBlockedCount');
       if (el) el.textContent = count.toLocaleString();
+    }
+    // Sync: başka cihazdan gelen değişikliklerde UI'ı yenile
+    if (area === 'sync') {
+      const syncKeys = ['enabled', 'whitelist', 'whitelist_n', 'customRules', 'customRules_n', 'blockedSites', 'blockedSites_n', 'preferredLanguage'];
+      if (syncKeys.some(k => k in changes)) {
+        loadState();
+      }
     }
   });
 
