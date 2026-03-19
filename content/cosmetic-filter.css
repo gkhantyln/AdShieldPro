@@ -227,3 +227,66 @@ iframe[src*="slcksprtsbot"] {
   height: 0 !important;
   width: 0 !important;
 }
+
+/* ============================================
+   YouTube Shorts Reklam Engelleme
+   ============================================ */
+
+/* Shorts feed içindeki reklam kartları */
+ytd-reel-shelf-renderer,
+ytd-reel-video-renderer[is-ad],
+ytd-ad-slot-renderer,
+ytd-in-feed-ad-layout-renderer,
+ytd-banner-promo-renderer,
+ytd-statement-banner-renderer,
+ytd-primetime-promo-renderer,
+ytd-compact-promoted-video-renderer,
+ytd-promoted-sparkles-web-renderer,
+ytd-promoted-sparkles-text-search-renderer {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Shorts player içi reklam overlay'leri */
+.ytp-ad-overlay-container,
+.ytp-ad-text-overlay,
+.ytp-ad-image-overlay,
+.ytp-ad-player-overlay,
+.ytp-ad-player-overlay-instream-info,
+.ytp-ad-skip-button-container,
+.ytp-ad-action-interstitial,
+.ytp-ad-action-interstitial-background,
+.ytp-ad-action-interstitial-slot,
+.ytp-ad-module,
+.ytp-ad-progress,
+.ytp-ad-progress-list,
+.ytp-ad-simple-ad-badge,
+.ytp-ad-visit-advertiser-button,
+.ytp-ad-button-icon,
+.ytp-ad-preview-container,
+.ytp-ad-preview-text-container,
+.ytp-ad-preview-image,
+.ytp-ad-clickthrough-url,
+.ytp-ad-feedback-dialog-container {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Shorts sayfası üst banner reklamları */
+#shorts-container ytd-reel-shelf-renderer,
+ytd-shorts ytd-ad-slot-renderer,
+ytd-shorts .ytd-reel-video-renderer[is-ad],
+ytd-shorts #player-ads,
+ytd-shorts .ad-showing,
+#shorts-inner-container ytd-ad-slot-renderer {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Shorts içi maskeleme overlay'leri */
+.shorts-video-cell-overlay[class*="ad"],
+[id^="shorts-ad-"],
+[class*="shorts-ad-"] {
+  display: none !important;
+  visibility: hidden !important;
+}

@@ -130,7 +130,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       activeTabHostname = tabInfo.hostname || '';
     }
 
+    // Bu sayfada engellenen sayısını çek
+    await loadPageBlockedCount();
+
     updateUI();
+  }
+
+  // ── Per-Page Blocked Count ───────────────
+  async function loadPageBlockedCount() {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab || !tab.id || !activeTabHostname) return;
+
+      const data = await chrome.storage.local.get({ stats: {} });
+      const byDomain = (data.stats && data.stats.byDomain) || {};
+      const count = byDomain[activeTabHostname] || 0;
+
+      const el = document.getElementById('pageBlockedCount');
+      if (el) el.textContent = count.toLocaleString();
+    } catch(e) {}
   }
 
   // ── Update UI ────────────────────────────
@@ -182,6 +200,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (heuristicBadge) {
       heuristicBadge.style.display = isActive ? 'flex' : 'none';
+    }
+
+    // Per-page blocked panel
+    const pageBlockedPanel = document.getElementById('pageBlockedPanel');
+    if (pageBlockedPanel) {
+      pageBlockedPanel.style.display = (isActive && activeTabHostname) ? 'flex' : 'none';
     }
 
     if (btnPicker) {
@@ -939,5 +963,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadBlockedSites();
 
-  // ── Init ─────────────────────────────────
-  await loadState();});
+  // ── Gerçek Zamanlı Sayfa Sayacı ──────────
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && 'stats' in changes && activeTabHostname) {
+      const byDomain = (changes.stats.newValue && changes.stats.newValue.byDomain) || {};
+      const count = byDomain[activeTabHostname] || 0;
+      const el = document.getElementById('pageBlockedCount');
+      if (el) el.textContent = count.toLocaleString();
+    }
+  });
+
+  // ── Initial Load ─────────────────────────
+  await loadState();
+});
