@@ -283,6 +283,27 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'checkState') {
     updateEffectiveState();
   }
+  // Scheduled pause alarmı
+  if (alarm.name && alarm.name.startsWith('scheduledPause_')) {
+    const parts = alarm.name.split('_'); // scheduledPause_start_HH_MM veya scheduledPause_end_HH_MM
+    const action = parts[1]; // 'start' veya 'end'
+    if (action === 'start') {
+      chrome.storage.local.set({ [STORAGE_KEY_PAUSE_UNTIL]: Date.now() + 24 * 60 * 60 * 1000 });
+      updateEffectiveState();
+    } else if (action === 'end') {
+      chrome.storage.local.set({ [STORAGE_KEY_PAUSE_UNTIL]: 0 });
+      updateEffectiveState();
+    }
+  }
+});
+
+// ── Keyboard Shortcut ────────────────────────────────
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command === 'toggle_extension') {
+    const enabled = await getEnabled();
+    await syncSet(STORAGE_KEY_ENABLED, !enabled);
+    await updateEffectiveState();
+  }
 });
 
 // ── Mesaj İşleme ─────────────────────────────────────
@@ -630,6 +651,31 @@ async function handleMessage(msg, sender) {
     case 'GET_BLOCKED_SITES': {
       const sites = await syncGet('blockedSites', []);
       return { success: true, blockedSites: sites };
+    }
+
+    case 'GET_SCHEDULED_PAUSE': {
+      const d = await chrome.storage.local.get({ scheduledPause: null });
+      return { success: true, scheduledPause: d.scheduledPause };
+    }
+
+    case 'SET_SCHEDULED_PAUSE': {
+      // msg.schedule: { enabled, startHour, startMin, endHour, endMin } veya null
+      const schedule = msg.schedule;
+      await chrome.storage.local.set({ scheduledPause: schedule });
+      // Eski alarmları temizle
+      await chrome.alarms.clear('scheduledPause_start');
+      await chrome.alarms.clear('scheduledPause_end');
+      if (schedule && schedule.enabled) {
+        // Her gün tekrarlayan alarm — periodInMinutes: 1440 = 24 saat
+        const now = new Date();
+        const startMs = new Date(now.getFullYear(), now.getMonth(), now.getDate(), schedule.startHour, schedule.startMin, 0).getTime();
+        const endMs   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), schedule.endHour,   schedule.endMin,   0).getTime();
+        const startDelay = ((startMs - Date.now()) % (24*60*60*1000) + 24*60*60*1000) % (24*60*60*1000);
+        const endDelay   = ((endMs   - Date.now()) % (24*60*60*1000) + 24*60*60*1000) % (24*60*60*1000);
+        chrome.alarms.create('scheduledPause_start', { delayInMinutes: startDelay / 60000, periodInMinutes: 1440 });
+        chrome.alarms.create('scheduledPause_end',   { delayInMinutes: endDelay   / 60000, periodInMinutes: 1440 });
+      }
+      return { success: true };
     }
 
     case 'ADD_BLOCKED_SITE': {

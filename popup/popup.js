@@ -386,20 +386,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // ── Render Rules ─────────────────────────
+  let allRulesCache = [];
+
   function renderRules(rules) {
+    allRulesCache = rules;
+    const searchVal = (document.getElementById('inputRuleSearch')?.value || '').toLowerCase().trim();
+    const filtered = searchVal
+      ? rules.filter(r => r.selector.toLowerCase().includes(searchVal) || (r.domain || '').toLowerCase().includes(searchVal))
+      : rules;
+
     ruleCount.textContent = rules.length;
 
-    if (rules.length === 0) {
+    if (filtered.length === 0) {
       rulesList.innerHTML = '';
-      rulesList.appendChild(emptyRules);
-      emptyRules.style.display = 'flex';
+      if (!searchVal) {
+        rulesList.appendChild(emptyRules);
+        emptyRules.style.display = 'flex';
+      } else {
+        rulesList.innerHTML = '<div class="empty-state"><span>Eşleşen kural yok</span></div>';
+      }
       return;
     }
 
     emptyRules.style.display = 'none';
     const fragment = document.createDocumentFragment();
 
-    rules.forEach(rule => {
+    filtered.forEach(rule => {
       const item = document.createElement('div');
       item.className = 'rule-item' + (rule.enabled === false ? ' disabled' : '');
 
@@ -455,6 +467,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const todayCount = (stats.daily && stats.daily[today]) || 0;
     statsTodayBlocked.textContent = formatNumber(todayCount);
 
+    // 7 günlük grafik
+    renderWeeklyChart(stats.daily || {});
+
     const byDomain = stats.byDomain || {};
     const entries = Object.entries(byDomain)
       .sort((a, b) => b[1] - a[1])
@@ -465,18 +480,63 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    const maxVal = entries[0][1] || 1;
     const fragment = document.createDocumentFragment();
     entries.forEach(([domain, count]) => {
+      const pct = Math.max(4, Math.round((count / maxVal) * 100));
       const item = document.createElement('div');
       item.className = 'domain-stat-item';
+      item.style.cssText = 'flex-direction:column; gap:3px; align-items:stretch;';
       item.innerHTML = `
-        <span class="domain-name">${escapeHtml(domain)}</span>
-        <span class="domain-count">${formatNumber(count)}</span>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="domain-name">${escapeHtml(domain)}</span>
+          <span class="domain-count">${formatNumber(count)}</span>
+        </div>
+        <div style="height:3px; background:rgba(51,65,85,0.6); border-radius:2px; overflow:hidden;">
+          <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,#3b82f6,#10b981); border-radius:2px; transition:width 0.4s ease;"></div>
+        </div>
       `;
       fragment.appendChild(item);
     });
     domainStatsList.innerHTML = '';
     domainStatsList.appendChild(fragment);
+  }
+
+  // ── 7 Günlük Bar Chart ───────────────────
+  function renderWeeklyChart(daily) {
+    const chart = document.getElementById('weeklyChart');
+    const labels = document.getElementById('weeklyLabels');
+    if (!chart || !labels) return;
+
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push(d.toISOString().split('T')[0]);
+    }
+
+    const values = days.map(d => daily[d] || 0);
+    const maxVal = Math.max(...values, 1);
+    const dayNames = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+
+    chart.innerHTML = '';
+    labels.innerHTML = '';
+
+    days.forEach((day, i) => {
+      const val = values[i];
+      const heightPct = Math.max(4, Math.round((val / maxVal) * 100));
+      const isToday = i === 6;
+
+      const bar = document.createElement('div');
+      bar.style.cssText = `flex:1; height:${heightPct}%; background:${isToday ? 'linear-gradient(180deg,#10b981,#059669)' : 'rgba(59,130,246,0.5)'}; border-radius:3px 3px 0 0; transition:height 0.3s ease; cursor:default; min-height:2px;`;
+      bar.title = `${day}: ${val.toLocaleString()} engellendi`;
+      chart.appendChild(bar);
+
+      const lbl = document.createElement('div');
+      lbl.style.cssText = `flex:1; text-align:center; font-size:9px; color:${isToday ? '#10b981' : '#475569'}; font-weight:${isToday ? '700' : '400'};`;
+      lbl.textContent = dayNames[new Date(day + 'T12:00:00').getDay()];
+      labels.appendChild(lbl);
+    });
   }
 
   // ── Render Whitelist ─────────────────────
@@ -708,6 +768,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error('Import error:', err);
     }
     fileImport.value = '';
+  });
+
+  // Rule Search
+  document.getElementById('inputRuleSearch')?.addEventListener('input', () => {
+    renderRules(allRulesCache);
   });
 
   // Reset Stats
@@ -962,6 +1027,59 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   await loadBlockedSites();
+
+  // ── Scheduled Pause ──────────────────────
+  async function loadScheduledPause() {
+    const res = await sendMsg({ type: 'GET_SCHEDULED_PAUSE' });
+    const schedule = res.scheduledPause;
+    const toggle = document.getElementById('scheduledPauseToggle');
+    const config = document.getElementById('scheduledPauseConfig');
+    const statusEl = document.getElementById('scheduledPauseStatus');
+    if (!toggle) return;
+
+    if (schedule && schedule.enabled) {
+      toggle.checked = true;
+      config.style.display = 'flex';
+      const sh = String(schedule.startHour).padStart(2,'0');
+      const sm = String(schedule.startMin).padStart(2,'0');
+      const eh = String(schedule.endHour).padStart(2,'0');
+      const em = String(schedule.endMin).padStart(2,'0');
+      document.getElementById('scheduledPauseStart').value = `${sh}:${sm}`;
+      document.getElementById('scheduledPauseEnd').value   = `${eh}:${em}`;
+      if (statusEl) statusEl.textContent = `Her gün ${sh}:${sm} – ${eh}:${em} arası duraklatılır`;
+    } else {
+      toggle.checked = false;
+      config.style.display = 'none';
+    }
+  }
+
+  document.getElementById('scheduledPauseToggle')?.addEventListener('change', (e) => {
+    const config = document.getElementById('scheduledPauseConfig');
+    if (config) config.style.display = e.target.checked ? 'flex' : 'none';
+    if (!e.target.checked) {
+      sendMsg({ type: 'SET_SCHEDULED_PAUSE', schedule: null });
+      const statusEl = document.getElementById('scheduledPauseStatus');
+      if (statusEl) statusEl.textContent = '';
+    }
+  });
+
+  document.getElementById('btnSaveScheduledPause')?.addEventListener('click', async () => {
+    const startVal = document.getElementById('scheduledPauseStart').value;
+    const endVal   = document.getElementById('scheduledPauseEnd').value;
+    const [sh, sm] = startVal.split(':').map(Number);
+    const [eh, em] = endVal.split(':').map(Number);
+    const schedule = { enabled: true, startHour: sh, startMin: sm, endHour: eh, endMin: em };
+    const btn = document.getElementById('btnSaveScheduledPause');
+    btn.textContent = '...';
+    await sendMsg({ type: 'SET_SCHEDULED_PAUSE', schedule });
+    btn.textContent = '✓ Kaydedildi';
+    btn.style.background = '#059669';
+    const statusEl = document.getElementById('scheduledPauseStatus');
+    if (statusEl) statusEl.textContent = `Her gün ${startVal} – ${endVal} arası duraklatılır`;
+    setTimeout(() => { btn.textContent = 'Kaydet'; btn.style.background = ''; }, 2000);
+  });
+
+  await loadScheduledPause();
 
   // ── Gerçek Zamanlı Sayfa Sayacı + Sync Değişiklikleri ──────────
   chrome.storage.onChanged.addListener((changes, area) => {

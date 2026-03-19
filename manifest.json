@@ -35,6 +35,22 @@
    "manifest_version": 3,
    "name": "__MSG_appName__",
    "default_locale": "tr",
+   "commands": {
+      "_execute_action": {
+         "suggested_key": {
+            "default": "Alt+Shift+A",
+            "mac": "Alt+Shift+A"
+         },
+         "description": "AdShield Pro popup'ı aç"
+      },
+      "toggle_extension": {
+         "suggested_key": {
+            "default": "Alt+Shift+S",
+            "mac": "Alt+Shift+S"
+         },
+         "description": "AdShield Pro'yu aç/kapat"
+      }
+   },
    "permissions": [ "declarativeNetRequest", "declarativeNetRequestFeedback", "storage", "scripting", "activeTab", "tabs", "alarms", "webNavigation" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
    "version": "2.2",
