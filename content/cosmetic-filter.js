@@ -89,6 +89,54 @@
     if (existing) existing.remove();
   }
 
+  // ── Cloud Cosmetic (##) Kuralları ────────────────────────────────────────
+  let cloudStyleEl = null;
+
+  async function applyCloudCosmeticRules() {
+    try {
+      const data = await chrome.storage.local.get({ cosmeticRules: [], [STORAGE_WHITELIST]: [] });
+      const whitelist = data[STORAGE_WHITELIST] || [];
+      const isWhitelisted = whitelist.some(d => currentDomain === d || currentDomain.endsWith('.' + d));
+      if (isWhitelisted) return;
+
+      const allRules = data.cosmeticRules || [];
+      if (allRules.length === 0) return;
+
+      // Sadece bu domain'e uyan kuralları filtrele (generic + domain-specific)
+      const selectors = new Set();
+      for (const rule of allRules) {
+        if (!rule.domain) {
+          // Generic kural — her yerde geçerli
+          selectors.add(rule.selector);
+        } else {
+          // Domain eşleşmesi
+          if (currentDomain === rule.domain || currentDomain.endsWith('.' + rule.domain)) {
+            selectors.add(rule.selector);
+          }
+        }
+      }
+
+      if (selectors.size === 0) return;
+
+      // Eski cloud style'ı kaldır
+      if (cloudStyleEl && cloudStyleEl.parentNode) cloudStyleEl.parentNode.removeChild(cloudStyleEl);
+      const old = document.getElementById('re-cloud-cosmetic');
+      if (old) old.remove();
+
+      // Yeni style inject et
+      cloudStyleEl = document.createElement('style');
+      cloudStyleEl.id = 're-cloud-cosmetic';
+      // Batch selectors into one rule for performance
+      cloudStyleEl.textContent = [...selectors].join(',\n') + ' { display: none !important; visibility: hidden !important; }';
+
+      const target = document.head || document.documentElement;
+      if (target) {
+        target.appendChild(cloudStyleEl);
+      }
+    } catch(e) {}
+  }
+  // ────────────────────────────────────────────────────────────────────────
+
   // İstatistik güncelle
   async function updateStats(count) {
     try {
@@ -117,6 +165,9 @@
     if (STORAGE_KEY in changes || STORAGE_WHITELIST in changes) {
       applyCustomRules();
     }
+    if ('cosmeticRules' in changes) {
+      applyCloudCosmeticRules();
+    }
   });
 
   // Background'dan mesajları dinle
@@ -130,6 +181,7 @@
 
   // 1. ADIM: Kuralları anında uygula (DOMContentLoaded bekleme)
   applyCustomRules();
+  applyCloudCosmeticRules();
 
   // MutationObserver ile yeni eklenen içerikleri de kontrol et
   let refreshTimeout = null;

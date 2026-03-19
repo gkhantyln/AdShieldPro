@@ -755,8 +755,8 @@ function parseAbpToDnr(text, startId) {
   for (const raw of lines) {
     const line = raw.trim();
     if (!line || line.startsWith('!') || line.startsWith('[')) continue;
-    // Skip cosmetic / snippet / extended filters
-    if (line.includes('##') || line.includes('#@#') || line.includes('#?#') || line.includes('#$#')) continue;
+    // Skip snippet / extended / exception cosmetic filters
+    if (line.includes('#@#') || line.includes('#?#') || line.includes('#$#')) continue;
     // Skip exception rules (@@) for now
     if (line.startsWith('@@')) continue;
 
@@ -811,6 +811,37 @@ async function getFilterListsState() {
   return { state: data.filterLists, custom: data.customFilterLists };
 }
 
+// ── ABP Cosmetic (##) Parser ────────────────────────
+function parseAbpCosmetic(text) {
+  // Returns array of { domain: string|null, selector: string }
+  const rules = [];
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (!line || line.startsWith('!') || line.startsWith('[')) continue;
+    // Only ## rules (element hiding), skip exceptions (#@#) and extended (#?#, #$#)
+    if (!line.includes('##') || line.includes('#@#') || line.includes('#?#') || line.includes('#$#')) continue;
+
+    const sepIdx = line.indexOf('##');
+    const domainPart = line.slice(0, sepIdx).trim();
+    const selector = line.slice(sepIdx + 2).trim();
+    if (!selector) continue;
+
+    if (!domainPart) {
+      // Generic rule — applies everywhere
+      rules.push({ domain: null, selector });
+    } else {
+      // May be comma-separated list of domains
+      for (const d of domainPart.split(',')) {
+        const domain = d.trim().toLowerCase();
+        if (domain) rules.push({ domain, selector });
+      }
+    }
+
+    if (rules.length >= 20000) break; // güvenlik sınırı
+  }
+  return rules;
+}
+
 // ── Cloud Rule Update Logic ─────────────────────────
 async function updateCloudRules() {
   try {
@@ -824,6 +855,7 @@ async function updateCloudRules() {
 
     let allRules = [];
     let idCounter = 2000;
+    let allCosmeticRules = [];
 
     for (const list of allLists) {
       try {
@@ -833,6 +865,11 @@ async function updateCloudRules() {
         const parsed = parseAbpToDnr(text, idCounter);
         idCounter += parsed.length + 1;
         allRules = allRules.concat(parsed);
+
+        // Cosmetic (##) kurallarını da parse et
+        const cosmetic = parseAbpCosmetic(text);
+        allCosmeticRules = allCosmeticRules.concat(cosmetic);
+
         if (allRules.length >= 5000) break;
       } catch(e) { /* liste atla */ }
     }
@@ -844,10 +881,13 @@ async function updateCloudRules() {
       addRules: allRules.slice(0, 5000)
     });
 
+    // Cosmetic kuralları storage'a yaz (max 20K)
+    await chrome.storage.local.set({ cosmeticRules: allCosmeticRules.slice(0, 20000) });
+
     const now = new Date();
     const version = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
     await chrome.storage.local.set({ cloudVersion: version, lastCloudUpdate: Date.now() });
-    return { success: true, version, ruleCount: allRules.length };
+    return { success: true, version, ruleCount: allRules.length, cosmeticCount: allCosmeticRules.length };
   } catch (e) {
     console.error('Cloud update error:', e);
     return { success: false, error: e.message };
