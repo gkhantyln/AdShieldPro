@@ -7,47 +7,51 @@
   // Siteler googletag, adsbygoogle gibi global değişkenlerin undefined olup
   // olmadığını kontrol ederek reklam engelleyici tespiti yapar.
   // Sahte (no-op) nesneler tanımlayarak bu tespiti engelliyoruz.
+  // YouTube kendi googletag/adsbygoogle sistemini kullanır.
+  // Bu stub'ları YouTube'da çalıştırmak "reklam engelleyici" tespitini tetikler.
+  const isYouTube = location.hostname.includes('youtube.com');
+
   try {
-    // googletag stub
-    if (!window.googletag) {
-      window.googletag = {
-        cmd: { push: (fn) => { try { fn(); } catch(e) {} } },
-        defineSlot: () => ({ addService: () => ({}) }),
-        pubads: () => ({
-          enableSingleRequest: () => {},
-          collapseEmptyDivs: () => {},
-          addEventListener: () => {},
-          setTargeting: () => {},
-          refresh: () => {},
-          disableInitialLoad: () => {},
-        }),
-        enableServices: () => {},
-        display: () => {},
-        destroySlots: () => {},
-      };
-    }
+    if (!isYouTube) {
+      // googletag stub — sadece YouTube dışında
+      if (!window.googletag) {
+        window.googletag = {
+          cmd: { push: (fn) => { try { fn(); } catch(e) {} } },
+          defineSlot: () => ({ addService: () => ({}) }),
+          pubads: () => ({
+            enableSingleRequest: () => {},
+            collapseEmptyDivs: () => {},
+            addEventListener: () => {},
+            setTargeting: () => {},
+            refresh: () => {},
+            disableInitialLoad: () => {},
+          }),
+          enableServices: () => {},
+          display: () => {},
+          destroySlots: () => {},
+        };
+      }
 
-    // adsbygoogle stub
-    if (!window.adsbygoogle) {
-      window.adsbygoogle = { push: () => {} };
-      // push çağrılarını sessizce yut
-      const _push = window.adsbygoogle.push.bind(window.adsbygoogle);
-      window.adsbygoogle.push = (obj) => { try { if (typeof obj === 'function') obj(); } catch(e) {} };
-    }
+      // adsbygoogle stub — sadece YouTube dışında
+      if (!window.adsbygoogle) {
+        window.adsbygoogle = { push: () => {} };
+        window.adsbygoogle.push = (obj) => { try { if (typeof obj === 'function') obj(); } catch(e) {} };
+      }
 
-    // _gaq (eski Google Analytics) stub
-    if (!window._gaq) {
-      window._gaq = { push: () => {} };
-    }
+      // _gaq (eski Google Analytics) stub
+      if (!window._gaq) {
+        window._gaq = { push: () => {} };
+      }
 
-    // dataLayer stub (GTM)
-    if (!window.dataLayer) {
-      window.dataLayer = [];
-      window.dataLayer.push = () => {};
-    }
+      // dataLayer stub (GTM)
+      if (!window.dataLayer) {
+        window.dataLayer = [];
+        window.dataLayer.push = () => {};
+      }
 
-    // yahoojsbid stub
-    if (!window.yahoojsbid) window.yahoojsbid = {};
+      // yahoojsbid stub
+      if (!window.yahoojsbid) window.yahoojsbid = {};
+    }
 
     // Bait element fetch tespitini engelle:
     // Bazı siteler /ads/pixel.gif veya /ad.js gibi URL'lere fetch atarak

@@ -50,7 +50,7 @@ const DYNAMIC_SCRIPTS = [
   },
   {
     id: 'yt-blocker',
-    allFrames: true,
+    allFrames: false,
     css: ['content/common.css'],
     js: ['content/yt-blocker.js'],
     matches: ['*://*.youtube.com/*', '*://m.youtube.com/*'],

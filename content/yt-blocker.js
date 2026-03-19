@@ -1,18 +1,21 @@
 (() => {
+  // ── Yardımcı Fonksiyonlar ─────────────────────────────────────────────
   function select(selector, root = document) {
-    return root.querySelector(selector);
+    try { return root.querySelector(selector); } catch(_) { return null; }
   }
 
   function selectAll(selector, root = document) {
-    return Array.from(root.querySelectorAll(selector));
+    try { return Array.from(root.querySelectorAll(selector)); } catch(_) { return []; }
   }
 
   function hideElements(selectors) {
     for (const selector of selectors) {
       for (const el of selectAll(selector)) {
-        if (el && el.style && el.style.display !== 'none') {
+        if (el && el.style) {
           el.style.setProperty('display', 'none', 'important');
           el.style.setProperty('visibility', 'hidden', 'important');
+          el.style.setProperty('opacity', '0', 'important');
+          el.style.setProperty('pointer-events', 'none', 'important');
         }
       }
     }
@@ -23,56 +26,87 @@
     try { el.click(); return true; } catch (_) { return false; }
   }
 
+  // ── Reklam Tespiti ────────────────────────────────────────────────────
+  // YouTube'un reklam gösterdiğini anlamak için kullandığı tüm sinyaller
+  function isAdPlaying() {
+    if (document.querySelector('.ad-showing'))           return true;
+    if (document.querySelector('.ad-interrupting'))      return true;
+    if (document.querySelector('.ytp-ad-player-overlay')) return true;
+    if (document.querySelector('.ytp-ad-text'))          return true;
+    if (document.querySelector('.ytp-ad-message-container')) return true;
+    if (document.querySelector('.ytp-ad-preview-container')) return true;
+
+    // Video element üzerinden kontrol
+    const video = select('video');
+    if (video) {
+      const player = select('#movie_player');
+      if (player && player.classList.contains('ad-showing')) return true;
+    }
+
+    // ytd-player-legacy-desktop-watch-ads-renderer
+    if (document.querySelector('ytd-player-legacy-desktop-watch-ads-renderer')) return true;
+
+    return false;
+  }
+
+  // ── Skip Butonu ───────────────────────────────────────────────────────
   function skipVideoAd() {
-    const skipButtons = [
+    const skipSelectors = [
       '.ytp-ad-skip-button',
       '.ytp-ad-skip-button-modern',
       '.ytp-ad-skip-button-container button',
       'button.ytp-skip-ad-button',
-      'button.ytp-ad-skip-button'
+      'button.ytp-ad-skip-button',
+      '.ytp-ad-skip-button-slot button',
+      '[class*="skip-button"]',
     ];
-    for (const selector of skipButtons) {
-      const btn = select(selector);
-      if (btn && tryClick(btn)) return true;
+    for (const sel of skipSelectors) {
+      const btn = select(sel);
+      if (btn && btn.offsetParent !== null && tryClick(btn)) return true;
     }
     return false;
   }
 
-  function isAdPlaying() {
-    if (document.querySelector('.ad-showing')) return true;
-    if (document.querySelector('.ytp-ad-player-overlay')) return true;
-    if (document.querySelector('.ytp-ad-text, .ytp-ad-message-container')) return true;
-    return false;
-  }
-
+  // ── Video Reklam Hızlandırma + Atlama ────────────────────────────────
   let wasAutomuted = false;
 
   function handleAdPlayback() {
     const video = select('video');
     if (!video) return;
-    if (!Number.isFinite(video.duration) || video.duration <= 0) return;
 
     const ad = isAdPlaying();
 
     if (ad) {
+      // Sesi kapat
       if (!video.muted) {
         video.muted = true;
         wasAutomuted = true;
       }
+      // Görünmez yap
       video.style.setProperty('opacity', '0', 'important');
-      video.playbackRate = 16;
 
+      // Maksimum hıza al
+      try { video.playbackRate = 16; } catch(_) {}
+
+      // Skip butonuna bas
       const skipped = skipVideoAd();
-      if (!skipped) {
+
+      // Skip olmadıysa sona atla
+      if (!skipped && Number.isFinite(video.duration) && video.duration > 0) {
         try {
-          if (video.currentTime < video.duration - 0.5) {
-            video.currentTime = video.duration - 0.5;
+          if (video.currentTime < video.duration - 0.1) {
+            video.currentTime = video.duration - 0.1;
           }
         } catch (_) {}
       }
     } else {
-      if (video.playbackRate !== 1) video.playbackRate = 1;
-      if (video.style.opacity === '0') video.style.removeProperty('opacity');
+      // Normal video — her şeyi geri al
+      if (video.playbackRate !== 1) {
+        try { video.playbackRate = 1; } catch(_) {}
+      }
+      if (video.style.opacity === '0') {
+        video.style.removeProperty('opacity');
+      }
       if (wasAutomuted) {
         video.muted = false;
         wasAutomuted = false;
@@ -80,38 +114,51 @@
     }
   }
 
+  // ── Overlay & Banner Reklamları Kaldır ───────────────────────────────
+  const AD_SELECTORS = [
+    // Player içi
+    '#player-ads',
+    '.video-ads',
+    '.ytp-ad-image-overlay',
+    '.ytp-ad-overlay-slot',
+    '.ytp-ad-module',
+    '.ytp-paid-content-overlay',
+    '.ytp-ad-player-overlay-instream-info',
+    '.ytp-ad-preview-container',
+    '.ytp-ad-progress',
+    '.ytp-ad-progress-list',
+    // Sayfa içi
+    '#masthead-ad',
+    'ytd-display-ad-renderer',
+    'ytd-action-companion-ad-renderer',
+    'ytd-in-feed-ad-layout-renderer',
+    'ytd-ad-slot-renderer',
+    'ytd-promoted-sparkles-web-renderer',
+    'ytd-promoted-video-renderer',
+    'ytd-search-pyv-renderer',
+    'ytd-banner-promo-renderer',
+    'ytd-statement-banner-renderer',
+    'ytd-rich-item-renderer.ytd-rich-grid-row[is-ad]',
+    // Shorts reklamları
+    'ytd-reel-shelf-renderer',
+    // Mastheads
+    '.ytd-masthead-ad-v4-renderer',
+    '.ytd-masthead-ad-v3-renderer',
+  ];
+
   function removeAdOverlays() {
-    const adSelectors = [
-      '#player-ads',
-      '.video-ads',
-      '.ytp-ad-image-overlay',
-      '.ytp-ad-overlay-slot',
-      '.ytd-promoted-sparkles-web-renderer',
-      'ytd-display-ad-renderer',
-      'ytd-action-companion-ad-renderer',
-      'ytd-in-feed-ad-layout-renderer',
-      'ytd-ad-slot-renderer',
-      '.ytp-ad-module',
-      '.ytp-paid-content-overlay',
-      '#masthead-ad'
-    ];
+    hideElements(AD_SELECTORS);
 
-    const isVideoPage = window.location.pathname.includes('/watch');
-    if (isVideoPage) {
-      adSelectors.push(
+    // /watch sayfasına özel
+    if (window.location.pathname.includes('/watch')) {
+      hideElements([
         'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-macro-markers-description-chapters"] .ad-container'
-      );
+      ]);
     }
-    hideElements(adSelectors);
   }
 
-  let scheduled = false;
-  function scheduleTick() {
-    if (scheduled) return;
-    scheduled = true;
-    requestAnimationFrame(() => { scheduled = false; tick(); });
-  }
-
+  // ── Masthead Koruması ─────────────────────────────────────────────────
+  // Reklam gizleme bazen gerçek header'ı da etkiler, bunu önle
   function restoreMasthead() {
     const masthead = document.querySelector('#masthead-container');
     if (masthead) {
@@ -119,8 +166,46 @@
       if (cs.display === 'none' || cs.visibility === 'hidden') {
         masthead.style.setProperty('display', 'block', 'important');
         masthead.style.setProperty('visibility', 'visible', 'important');
+        masthead.style.removeProperty('opacity');
       }
     }
+  }
+
+  // ── Anti-Adblock Uyarısını Kapat ─────────────────────────────────────
+  // YouTube bazen "Reklam engelleyicinizi kapatın" dialog'u gösterir
+  function dismissAdblockWarning() {
+    // Modal/dialog
+    const dialogs = [
+      'ytd-enforcement-message-view-model',
+      'tp-yt-paper-dialog',
+      '.ytd-enforcement-message-view-model',
+    ];
+    for (const sel of dialogs) {
+      const el = select(sel);
+      if (el && el.offsetParent !== null) {
+        // Dismiss/close butonunu bul
+        const closeBtn = el.querySelector('button[aria-label], .yt-spec-button-shape-next, button');
+        if (closeBtn) tryClick(closeBtn);
+        // Direkt gizle
+        el.style.setProperty('display', 'none', 'important');
+      }
+    }
+
+    // "Continue watching" overlay
+    const overlay = select('.yt-playability-error-supported-renderers');
+    if (overlay) overlay.style.setProperty('display', 'none', 'important');
+
+    // Backdrop/overlay karartma
+    const backdrop = select('tp-yt-iron-overlay-backdrop');
+    if (backdrop) backdrop.style.setProperty('display', 'none', 'important');
+  }
+
+  // ── Ana Tick ─────────────────────────────────────────────────────────
+  let scheduled = false;
+  function scheduleTick() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => { scheduled = false; tick(); });
   }
 
   function tick() {
@@ -128,52 +213,122 @@
     skipVideoAd();
     handleAdPlayback();
     restoreMasthead();
+    dismissAdblockWarning();
   }
 
-  function start() {
-    const isVideoPage = window.location.pathname.includes('/watch');
-    const isChannelPage = window.location.pathname.includes('/channel/') || window.location.pathname.includes('/@');
-    if (isChannelPage) return;
+  // ── Observer Yönetimi ─────────────────────────────────────────────────
+  let mainObserver = null;
+  let bodyObserver = null;
 
-    if (isVideoPage) {
-      const videoContainer = select('#movie_player') || select('ytd-player') || document.body;
-      if (videoContainer) {
-        let mutScheduled = false;
-        const observer = new MutationObserver((mutations) => {
-          if (mutScheduled) return;
-          const hasAdChanges = mutations.some(m => {
-            const t = m.target;
-            return t && t.classList && (
-              t.classList.contains('ad-showing') ||
-              t.classList.contains('ytp-ad-player-overlay') ||
-              t.classList.contains('video-ads') ||
-              t.id === 'player-ads'
-            );
-          });
-          if (hasAdChanges) {
-            mutScheduled = true;
-            requestAnimationFrame(() => { mutScheduled = false; tick(); });
-          }
-        });
-        observer.observe(videoContainer, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+  function attachVideoObserver() {
+    if (mainObserver) { mainObserver.disconnect(); mainObserver = null; }
+
+    const videoContainer = select('#movie_player') || select('ytd-player') || document.body;
+    if (!videoContainer) return;
+
+    mainObserver = new MutationObserver(() => scheduleTick());
+    mainObserver.observe(videoContainer, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class', 'style', 'src']
+    });
+
+    // Video event'leri
+    document.addEventListener('timeupdate', (e) => {
+      if (e.target.tagName === 'VIDEO' && isAdPlaying()) scheduleTick();
+    }, { capture: true, passive: true });
+
+    document.addEventListener('play', (e) => {
+      if (e.target.tagName === 'VIDEO') scheduleTick();
+    }, { capture: true, passive: true });
+  }
+
+  // Body seviyesinde dialog/overlay izle (adblock uyarısı için)
+  function attachBodyObserver() {
+    if (bodyObserver) return;
+    bodyObserver = new MutationObserver((mutations) => {
+      const hasDialog = mutations.some(m =>
+        Array.from(m.addedNodes).some(n =>
+          n.nodeType === 1 && (
+            n.tagName === 'TP-YT-PAPER-DIALOG' ||
+            n.tagName === 'YTD-ENFORCEMENT-MESSAGE-VIEW-MODEL' ||
+            (n.classList && n.classList.contains('ytd-enforcement-message-view-model'))
+          )
+        )
+      );
+      if (hasDialog) {
+        setTimeout(() => { dismissAdblockWarning(); tick(); }, 100);
       }
+    });
+    bodyObserver.observe(document.body, { childList: true, subtree: true });
+  }
 
-      // Add event listeners instead of setInterval for better performance
-      document.addEventListener('timeupdate', (e) => {
-          if (e.target.tagName === 'VIDEO' && isAdPlaying()) tick();
-      }, true);
-      
-      document.addEventListener('play', (e) => {
-          if (e.target.tagName === 'VIDEO') tick();
-      }, true);
-    }
+  // ── SPA Navigasyon Desteği ────────────────────────────────────────────
+  // YouTube React-benzeri SPA'dır. Sayfa yenilenmez, URL değişir.
+  // Her navigasyonda observer'ları yeniden bağlamamız gerekir.
+  function onNavigate() {
+    const path = window.location.pathname;
+    const isChannel = path.includes('/channel/') || path.includes('/@');
+    if (isChannel) return;
 
-    // İlk taramayı yap
+    // Kısa gecikme: YouTube DOM'u oluştursun
+    setTimeout(() => {
+      tick();
+      if (path.includes('/watch')) {
+        attachVideoObserver();
+      }
+    }, 300);
+
+    // Bir kez daha kontrol (geç yüklenen elementler için)
+    setTimeout(() => tick(), 1500);
+  }
+
+  // YouTube'un kendi navigasyon event'i
+  window.addEventListener('yt-navigate-finish', onNavigate);
+  window.addEventListener('yt-page-data-updated', () => scheduleTick());
+
+  // Fallback: popstate / hashchange
+  window.addEventListener('popstate', onNavigate);
+
+  // ── Başlat ────────────────────────────────────────────────────────────
+  function start() {
+    const path = window.location.pathname;
+    const isChannel = path.includes('/channel/') || path.includes('/@');
+    if (isChannel) return;
+
+    // İlk tarama
     scheduleTick();
 
+    // Body observer her zaman aktif (dialog tespiti için)
+    if (document.body) {
+      attachBodyObserver();
+    } else {
+      document.addEventListener('DOMContentLoaded', attachBodyObserver);
+    }
+
+    // Video sayfasında observer bağla
+    if (path.includes('/watch')) {
+      attachVideoObserver();
+    }
+
+    // Sekme görünür olduğunda tekrar tara
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) scheduleTick();
     });
+
+    // Periyodik kontrol — SPA geçişlerinde kaçan durumlar için
+    // requestAnimationFrame tabanlı, setInterval'dan daha verimli
+    let lastCheck = 0;
+    function periodicCheck(ts) {
+      if (ts - lastCheck > 2000) { // 2 saniyede bir
+        lastCheck = ts;
+        if (isAdPlaying()) tick();
+        dismissAdblockWarning();
+      }
+      requestAnimationFrame(periodicCheck);
+    }
+    requestAnimationFrame(periodicCheck);
   }
 
   try { start(); } catch(e) {}
