@@ -128,6 +128,32 @@ Engellenen siteye gidildiğinde sayfa içeriği görünmeden `blocked.html` sayf
 - **Anti-Adblock Bypass:** `googletag`, `adsbygoogle`, `dataLayer` stub nesneleri ile adblock detector'ları yanıltır.
 - **MutationObserver:** Dinamik yüklenen reklamları ve 1x1 tracking pixel'leri yakalar.
 
+## 📊 Rakip Karşılaştırması
+
+| Özellik | AdShield Pro | uBlock Origin | AdBlock Plus | AdGuard | Ghostery |
+|---------|-------------|---------------|--------------|---------|---------|
+| YouTube Reklam Engelleme | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ |
+| YouTube Skip + Hızlandırma | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐ | ⭐⭐⭐ | ⭐ |
+| Anti-Adblock Bypass | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ | ⭐ |
+| Canvas Fingerprint Koruması | ⭐⭐⭐⭐⭐ | ⭐ | ⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Audio Fingerprint Koruması | ⭐⭐⭐⭐ | ⭐ | ⭐ | ⭐⭐ | ⭐⭐⭐ |
+| WebRTC IP Sızıntı Koruması | ⭐⭐⭐⭐ | ⭐⭐ | ⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+| Sosyal Medya Tracker Engelleme | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| AI Clickbait Filtresi | ⭐⭐⭐⭐⭐ | ⭐ | ⭐ | ⭐ | ⭐ |
+| Ebeveyn Kontrolü | ⭐⭐⭐⭐⭐ | ⭐ | ⭐ | ⭐⭐⭐⭐ | ⭐ |
+| Manuel Site Engelleme | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐ |
+| Element Picker | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐ |
+| Bulut Liste Desteği (ABP) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ |
+| Türkçe Filtre Listesi | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ |
+| Canlı Yayın / Futbol Desteği | ⭐⭐⭐⭐⭐ | ⭐ | ⭐ | ⭐ | ⭐ |
+| Çoklu Cihaz Sync | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐ |
+| Beacon / 1x1 Pixel Engelleme | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+| Sayfa Bazlı Gerçek Zamanlı Sayaç | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ |
+| Manifest V3 Uyumluluğu | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Açık Kaynak | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+
+> ⭐⭐⭐⭐⭐ Mükemmel &nbsp;|&nbsp; ⭐⭐⭐⭐ İyi &nbsp;|&nbsp; ⭐⭐⭐ Orta &nbsp;|&nbsp; ⭐⭐ Zayıf &nbsp;|&nbsp; ⭐ Yok / Desteklenmiyor
+
 ## 🤝 Contributing
 
 1. Fork the repository.
