@@ -112,7 +112,7 @@
     "priority": 10,
     "action": { "type": "block" },
     "condition": {
-      "urlFilter": "||www.youtube.com/ptracking",
+      "urlFilter": "||www.youtube.com/api/stats/ads",
       "resourceTypes": ["xmlhttprequest", "ping", "image"]
     }
   },
@@ -121,30 +121,12 @@
     "priority": 10,
     "action": { "type": "block" },
     "condition": {
-      "urlFilter": "||www.youtube.com/api/stats/ads",
-      "resourceTypes": ["xmlhttprequest", "ping", "image"]
-    }
-  },
-  {
-    "id": 15,
-    "priority": 10,
-    "action": { "type": "block" },
-    "condition": {
-      "urlFilter": "||www.youtube.com/api/stats/qoe",
-      "resourceTypes": ["xmlhttprequest", "ping"]
-    }
-  },
-  {
-    "id": 16,
-    "priority": 10,
-    "action": { "type": "block" },
-    "condition": {
       "urlFilter": "||googleads4.g.doubleclick.net^",
       "resourceTypes": ["script", "xmlhttprequest", "image", "media"]
     }
   },
   {
-    "id": 17,
+    "id": 15,
     "priority": 10,
     "action": { "type": "block" },
     "condition": {
@@ -153,7 +135,7 @@
     }
   },
   {
-    "id": 18,
+    "id": 16,
     "priority": 10,
     "action": { "type": "block" },
     "condition": {
