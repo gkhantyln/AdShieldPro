@@ -1,7 +1,7 @@
 {
   "appName": { "message": "AdShield Pro" },
   "appSub": { "message": "Advanced ad blocking for YouTube & all sites" },
-  "appDesc": { "message": "AdShield Pro v2.1 - Custom rules, cloud lists, element picker, statistics panel and advanced AI filtering." },
+  "appDesc": { "message": "AdShield Pro v2.2 - Custom rules, cloud lists, element picker, statistics panel and advanced AI filtering." },
   "statusLabel": { "message": "STATUS" },
   "statusActive": { "message": "Active & Blocking" },
   "statusDisabled": { "message": "Disabled" },

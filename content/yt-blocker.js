@@ -185,6 +185,8 @@
     for (const sel of dialogs) {
       const el = select(sel);
       if (el && el.offsetParent !== null) {
+        // Yorum bölümü dialog'larına dokunma (comment section uses paper-dialog too)
+        if (el.closest('ytd-comments') || el.closest('#comments')) continue;
         // Dismiss/close butonunu bul
         const closeBtn = el.querySelector('button[aria-label], .yt-spec-button-shape-next, button');
         if (closeBtn) tryClick(closeBtn);

@@ -56,20 +56,24 @@
     // Bait element fetch tespitini engelle:
     // Bazı siteler /ads/pixel.gif veya /ad.js gibi URL'lere fetch atarak
     // engellenip engellenmediğini kontrol eder. Bunları başarılı gibi göster.
-    const _origFetch = window.fetch;
-    window.fetch = function(input, init) {
-      const url = (input instanceof Request ? input.url : String(input || '')).toLowerCase();
-      const adBaitPatterns = [
-        '/ads/pixel', '/ad.js', '/ads.js', '/adframe', '/pagead',
-        'adsbygoogle', 'doubleclick.net', 'googlesyndication',
-        '/bait', '/adbait', '/adtest', '/adsense'
-      ];
-      if (adBaitPatterns.some(p => url.includes(p))) {
-        // Başarılı boş response döndür
-        return Promise.resolve(new Response('', { status: 200 }));
-      }
-      return _origFetch.apply(this, arguments);
-    };
+    // YouTube'da bu hook'u çalıştırma — YouTube'un kendi iç isteklerini (stats/qoe,
+    // ptracking, videoplayback) engelleyerek scroll/lazy-load mekanizmasını bozuyor.
+    if (!isYouTube) {
+      const _origFetch = window.fetch;
+      window.fetch = function(input, init) {
+        const url = (input instanceof Request ? input.url : String(input || '')).toLowerCase();
+        const adBaitPatterns = [
+          '/ads/pixel', '/ad.js', '/ads.js', '/adframe', '/pagead',
+          'adsbygoogle', 'doubleclick.net', 'googlesyndication',
+          '/bait', '/adbait', '/adtest', '/adsense'
+        ];
+        if (adBaitPatterns.some(p => url.includes(p))) {
+          // Başarılı boş response döndür
+          return Promise.resolve(new Response('', { status: 200 }));
+        }
+        return _origFetch.apply(this, arguments);
+      };
+    }
   } catch(e) {}
   // ────────────────────────────────────────────────────────────────────────
   // 1. Canvas Fingerprinting Koruması
@@ -151,17 +155,21 @@
 
   // 4. Görünmez (1x1) Takip Piksellerini ve Beacon İsteklerini Engelleme
   // Analytics sistemleri kullanıcı sayfadan çıkarken sendBeacon gönderir.
-  try {
-    const originalSendBeacon = navigator.sendBeacon;
-    navigator.sendBeacon = function(url, data) {
-      const urlStr = String(url).toLowerCase();
-      // En bilindik tracker beaconlarını engelle
-      if (urlStr.includes('analytics') || urlStr.includes('track') || urlStr.includes('collect') || urlStr.includes('pixel') || urlStr.includes('logger')) {
-        return true; // Başarılı olmuş gibi davran ama gönderme ("blackhole")
-      }
-      return originalSendBeacon.call(navigator, url, data);
-    };
-  } catch(e) {}
+  // YouTube'da sendBeacon'a dokunma — stats/qoe ve ptracking YouTube'un
+  // kendi video izleme altyapısıdır, engellenirse scroll/playback bozulur.
+  if (!isYouTube) {
+    try {
+      const originalSendBeacon = navigator.sendBeacon;
+      navigator.sendBeacon = function(url, data) {
+        const urlStr = String(url).toLowerCase();
+        // En bilindik tracker beaconlarını engelle
+        if (urlStr.includes('analytics') || urlStr.includes('track') || urlStr.includes('collect') || urlStr.includes('pixel') || urlStr.includes('logger')) {
+          return true; // Başarılı olmuş gibi davran ama gönderme ("blackhole")
+        }
+        return originalSendBeacon.call(navigator, url, data);
+      };
+    } catch(e) {}
+  }
 
   // MutationObserver ile DOM'a eklenen 1x1 Tracking Image'ları temizle
   try {

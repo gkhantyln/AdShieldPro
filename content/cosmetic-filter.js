@@ -274,7 +274,8 @@
 
   // ── Agresif Reklam Temizleyici (Yayın Siteleri) ──
   function aggressiveClean() {
-    // 1. data-advertisement-link elementlerini kaldır
+    // YouTube'da bu agresif temizleyiciyi çalıştırma — yorum scroll'unu bozuyor
+    if (window.location.hostname.includes('youtube.com')) return;
     document.querySelectorAll('[data-advertisement-link]').forEach(el => {
       if (isBaitElement(el)) return;
       el.style.setProperty('display', 'none', 'important');
@@ -345,6 +346,8 @@
     });
 
     // 6. Click hijacking koruması - sayfada gizli tıklama katmanlarını kaldır
+    // YouTube'da yorum lazy-load container'larını etkilememek için atla
+    if (window.location.hostname.includes('youtube.com')) return;
     document.querySelectorAll('div[style*="pointer-events: auto"][style*="position: fixed"]').forEach(el => {
       if (!el.className && !el.id) {
         el.style.setProperty('display', 'none', 'important');

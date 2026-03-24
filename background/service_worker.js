@@ -272,9 +272,15 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
     await updateEffectiveState();
   }
   // Sync'teki blockedSites değişirse in-memory map'i güncelle
-  if (area === 'sync' && 'blockedSites' in changes) {
-    const sites = await syncGet('blockedSites', []);
-    await applyBlockedSiteRules(sites);
+  // Not: syncSet önce eski chunk'ları siler, sonra yeni değeri yazar.
+  // Silme sırasında tetiklenen onChanged'da syncGet eksik/bozuk veri döndürebilir.
+  // Bu yüzden sadece _n key'i değişince (yani yazma tamamlanınca) güncelle.
+  // _applyingBlockedSites flag'i set ise bu service worker zaten güncelledi, atla.
+  if (area === 'sync' && ('blockedSites' in changes || 'blockedSites_n' in changes)) {
+    if (!_applyingBlockedSites) {
+      const sites = await syncGet('blockedSites', []);
+      await applyBlockedSiteRules(sites);
+    }
   }
 });
 
@@ -781,6 +787,7 @@ function isParentalBlocked(url) {
 // ── Blocked Sites (Manuel Engelleme) ───────────────
 const BLOCKED_SITE_RULE_BASE = 9000;
 let blockedSiteMap = null; // { domain: 'block'|'google' }
+let _applyingBlockedSites = false; // syncSet sırasında onChanged'ı ignore et
 
 async function loadBlockedSiteMap() {
   const blockedSites = await syncGet('blockedSites', []);
@@ -824,18 +831,25 @@ function getBlockedSiteRedirect(url) {
 }
 
 async function applyBlockedSiteRules(sites) {
-  // DNR kurallarını temizle (artık tabs.onUpdated kullanıyoruz)
-  const existing = await chrome.declarativeNetRequest.getDynamicRules();
-  const oldIds = existing.filter(r => r.id >= BLOCKED_SITE_RULE_BASE && r.id < BLOCKED_SITE_RULE_BASE + 1000).map(r => r.id);
-  if (oldIds.length > 0) {
-    await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: oldIds });
+  _applyingBlockedSites = true;
+  try {
+    // DNR kurallarını temizle (artık tabs.onUpdated kullanıyoruz)
+    const existing = await chrome.declarativeNetRequest.getDynamicRules();
+    const oldIds = existing.filter(r => r.id >= BLOCKED_SITE_RULE_BASE && r.id < BLOCKED_SITE_RULE_BASE + 1000).map(r => r.id);
+    if (oldIds.length > 0) {
+      await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: oldIds });
+    }
+    // In-memory map'i güncelle
+    blockedSiteMap = (sites || []).map(s => ({
+      pattern: s.domain.toLowerCase(),
+      regex: patternToRegex(s.domain.toLowerCase()),
+      redirect: s.redirect || 'block'
+    }));
+  } finally {
+    // Kısa gecikme sonrası flag'i sıfırla — storage.onChanged'ın chunk silme
+    // sırasında tetiklenmesini önlemek için
+    setTimeout(() => { _applyingBlockedSites = false; }, 500);
   }
-  // In-memory map'i güncelle
-  blockedSiteMap = (sites || []).map(s => ({
-    pattern: s.domain.toLowerCase(),
-    regex: patternToRegex(s.domain.toLowerCase()),
-    redirect: s.redirect || 'block'
-  }));
 }
 
 // ── Default Filter Lists ────────────────────────────

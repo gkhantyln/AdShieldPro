@@ -1,7 +1,7 @@
 {
   "appName": { "message": "AdShield Pro" },
   "appSub": { "message": "YouTube & tüm siteler için gelişmiş reklam engelleme" },
-  "appDesc": { "message": "AdShield Pro v2.1 - Özel kurallar, bulut listeleri, element seçici, istatistik paneli ve gelişmiş AI filtreleme." },
+  "appDesc": { "message": "AdShield Pro v2.2 - Özel kurallar, bulut listeleri, element seçici, istatistik paneli ve gelişmiş AI filtreleme." },
   "statusLabel": { "message": "DURUM" },
   "statusActive": { "message": "Aktif & Koruyor" },
   "statusDisabled": { "message": "Devre Dışı" },

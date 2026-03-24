@@ -181,25 +181,25 @@ a[href*="slcksprtsbot"] {
   overflow: hidden !important;
 }
 
-/* Tam ekran overlay / popup reklamlar (yayın siteleri) */
-div[style*="position: fixed"][style*="z-index"][style*="width: 100"]:not([class]):not([id]),
-div[style*="position:fixed"][style*="z-index"][style*="width:100"]:not([class]):not([id]),
-div[style*="position: fixed"][style*="z-index"][style*="height: 100"]:not([class]):not([id]),
-div[style*="position:fixed"][style*="z-index"][style*="height:100"]:not([class]):not([id]) {
+/* Tam ekran overlay / popup reklamlar (yayın siteleri) — YouTube hariç */
+:not(ytd-app) > div[style*="position: fixed"][style*="z-index"][style*="width: 100"]:not([class]):not([id]),
+:not(ytd-app) > div[style*="position:fixed"][style*="z-index"][style*="width:100"]:not([class]):not([id]),
+:not(ytd-app) > div[style*="position: fixed"][style*="z-index"][style*="height: 100"]:not([class]):not([id]),
+:not(ytd-app) > div[style*="position:fixed"][style*="z-index"][style*="height:100"]:not([class]):not([id]) {
   pointer-events: none !important;
   opacity: 0 !important;
 }
 
-/* Reklam overlay katmanları - genellikle tam ekran ve şeffaf */
-div[style*="pointer-events: auto"][style*="position: fixed"]:not([class]):not([id]),
-div[style*="pointer-events:auto"][style*="position:fixed"]:not([class]):not([id]) {
+/* Reklam overlay katmanları — YouTube hariç */
+:not(ytd-app) > div[style*="pointer-events: auto"][style*="position: fixed"]:not([class]):not([id]),
+:not(ytd-app) > div[style*="pointer-events:auto"][style*="position:fixed"]:not([class]):not([id]) {
   display: none !important;
   pointer-events: none !important;
 }
 
-/* Class'sız, id'siz overlay div'ler (reklam tıklama katmanları) */
-body > div[style*="position: fixed"][style*="z-index"]:not([class]):not([id]):has(a[target="_blank"]),
-body > div[style*="position:fixed"][style*="z-index"]:not([class]):not([id]):has(a[target="_blank"]) {
+/* Class'sız, id'siz overlay div'ler — YouTube hariç */
+body:not(:has(ytd-app)) > div[style*="position: fixed"][style*="z-index"]:not([class]):not([id]):has(a[target="_blank"]),
+body:not(:has(ytd-app)) > div[style*="position:fixed"][style*="z-index"]:not([class]):not([id]):has(a[target="_blank"]) {
   display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;
