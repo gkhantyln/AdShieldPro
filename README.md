@@ -1,11 +1,11 @@
 <div align="center">
 
-# 🛡️ AdShield Pro v2.2
+# 🛡️ AdShield Pro v2.3
 ### The Ultimate Ad Blocking Experience
 
 <img alt="image.png" data-hpc="true" src="https://github.com/gkhantyln/AdShieldPro/blob/main/image.png" style="max-width: 100%;">
 
-[![Version](https://img.shields.io/badge/version-2.2-blue.svg?style=for-the-badge)](https://github.com/gkhantyln/AdShieldPro)
+[![Version](https://img.shields.io/badge/version-2.3-blue.svg?style=for-the-badge)](https://github.com/gkhantyln/AdShieldPro)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Chrome](https://img.shields.io/badge/Chrome-Extension-4285F4.svg?style=for-the-badge&logo=google-chrome&logoColor=white)](https://chrome.google.com/webstore)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
@@ -63,7 +63,7 @@ Ayarlar sekmesindeki **Bulut Listeleri** bölümünden yönetilir.
 ### Özel Liste Ekleme
 Ayarlar → Bulut Listeleri → "Özel Liste Ekle" bölümüne herhangi bir ABP/uBlock formatındaki `.txt` liste URL'si eklenebilir.
 
-## 🆕 v2.2 Değişiklikleri
+## 🆕 v2.3 Değişiklikleri
 
 - **Çoklu Cihaz Sync:** Özel kurallar, whitelist, engellenen siteler ve ayarlar artık `chrome.storage.sync` üzerinden tüm Chrome cihazlarınıza otomatik senkronize edilir.
 - **Ebeveyn Kontrolü:** 100.000+ domainlik yetişkin içerik listesi entegrasyonu. `webNavigation.onBeforeNavigate` ile sayfa yüklenmeden anında engelleme.

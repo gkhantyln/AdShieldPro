@@ -53,7 +53,7 @@
    },
    "permissions": [ "declarativeNetRequest", "declarativeNetRequestFeedback", "storage", "scripting", "activeTab", "tabs", "alarms", "webNavigation" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "2.2",
+   "version": "2.3",
    "web_accessible_resources": [ {
       "resources": [ "content/element-picker.css" ],
       "matches": [ "<all_urls>" ]
