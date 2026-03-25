@@ -20,7 +20,11 @@
       }, {
          "enabled": true,
          "id": "general_rules",
-         "path": "rules/rules_general.json"
+         "path": "rules/rules_general_1.json"
+      }, {
+         "enabled": true,
+         "id": "general_rules_2",
+         "path": "rules/rules_general_2.json"
       } ]
    },
    "description": "__MSG_appDesc__",

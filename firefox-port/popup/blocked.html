@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Erişim Engellendi — AdShield Pro</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      height: 100vh;
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+      color: #e2e8f0;
+    }
+
+    .bg {
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse at 50% -10%, rgba(239,68,68,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 90%, rgba(124,58,237,0.08) 0%, transparent 45%),
+        #020617;
+    }
+
+    .grid {
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(239,68,68,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(239,68,68,0.035) 1px, transparent 1px);
+      background-size: 44px 44px;
+      animation: gridMove 18s linear infinite;
+    }
+    @keyframes gridMove { to { transform: translateY(44px); } }
+
+    .particles { position: fixed; inset: 0; pointer-events: none; }
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: rgba(239,68,68,0.55);
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+      8%   { opacity: 1; }
+      92%  { opacity: 1; }
+      100% { transform: translateY(-8vh) translateX(var(--d)); opacity: 0; }
+    }
+
+    /* ── Card ── */
+    .card {
+      position: relative; z-index: 10;
+      width: min(520px, 92vw);
+      background: rgba(10, 18, 35, 0.88);
+      border: 1px solid rgba(239,68,68,0.28);
+      border-radius: 20px;
+      padding: 32px 36px 28px;
+      backdrop-filter: blur(22px);
+      box-shadow: 0 0 0 1px rgba(239,68,68,0.08), 0 24px 56px rgba(0,0,0,0.65), 0 0 70px rgba(239,68,68,0.07);
+      animation: cardIn .55s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform: scale(.88) translateY(24px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+
+    /* ── Header row ── */
+    .header-row {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+    }
+
+    .shield-wrap {
+      position: relative; flex-shrink: 0;
+      width: 56px; height: 56px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 1.5px solid rgba(239,68,68,0.35);
+      animation: pulseRing 2.2s ease-out infinite;
+    }
+    .ring:nth-child(2) { animation-delay: .7s; }
+    @keyframes pulseRing {
+      0%   { transform: scale(1); opacity: .7; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+    .shield-circle {
+      position: relative; z-index: 1;
+      width: 48px; height: 48px; border-radius: 50%;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.35);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .shield-circle svg { filter: drop-shadow(0 0 6px rgba(239,68,68,.7)); }
+
+    .header-text { flex: 1; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.28);
+      border-radius: 20px; padding: 2px 10px;
+      font-size: 10px; font-weight: 700; color: #f87171;
+      letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 4px;
+    }
+    .dot { width: 5px; height: 5px; background: #ef4444; border-radius: 50%; animation: blink 1s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+    h1 { font-size: 18px; font-weight: 800; color: #f1f5f9; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── Domain pill ── */
+    .domain-pill {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 8px; padding: 8px 14px; margin-bottom: 16px;
+    }
+    .domain-pill span { font-size: 14px; font-weight: 600; color: #fca5a5; font-family: monospace; word-break: break-all; }
+
+    /* ── Info grid ── */
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px;
+    }
+    .info-box {
+      background: rgba(30,41,59,0.55); border: 1px solid rgba(51,65,85,0.55);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    .ib-label { font-size: 10px; color: #475569; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+    .ib-val   { font-size: 12px; color: #cbd5e1; font-weight: 600; }
+    .ib-val.green { color: #34d399; }
+
+    /* ── Desc ── */
+    .desc {
+      font-size: 12px; color: #64748b; line-height: 1.65;
+      border-top: 1px solid rgba(51,65,85,0.4);
+      padding-top: 14px; margin-bottom: 16px;
+    }
+    .desc strong { color: #94a3b8; }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; gap: 8px; }
+    .btn {
+      flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 10px 16px; border-radius: 9px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: none; transition: all .18s; text-decoration: none;
+    }
+    .btn-red  { background: linear-gradient(135deg,#ef4444,#dc2626); color:#fff; box-shadow: 0 4px 14px rgba(239,68,68,.28); }
+    .btn-red:hover  { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(239,68,68,.38); }
+    .btn-ghost { background: rgba(30,41,59,.8); color:#94a3b8; border:1px solid rgba(51,65,85,.6); }
+    .btn-ghost:hover { background: rgba(51,65,85,.6); color:#e2e8f0; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 14px; text-align: center;
+      font-size: 11px; color: #334155;
+    }
+    .footer strong { color: #475569; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid"></div>
+  <div class="particles" id="particles"></div>
+
+  <div class="card">
+    <!-- Header -->
+    <div class="header-row">
+      <div class="shield-wrap">
+        <div class="ring"></div><div class="ring"></div>
+        <div class="shield-circle">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <circle cx="12" cy="16" r=".5" fill="#ef4444"/>
+          </svg>
+        </div>
+      </div>
+      <div class="header-text">
+        <div class="badge"><div class="dot"></div>ERİŞİM ENGELLENDİ</div>
+        <h1>Bu Siteye Erişim Kısıtlandı</h1>
+      </div>
+    </div>
+
+    <!-- Domain -->
+    <div class="domain-pill">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#f87171" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      <span id="domainDisplay">—</span>
+    </div>
+
+    <!-- Info grid -->
+    <div class="info-grid">
+      <div class="info-box">
+        <div class="ib-label">📅 Tarih</div>
+        <div class="ib-val" id="infoDate">—</div>
+      </div>
+      <div class="info-box">
+        <div class="ib-label">🕐 Saat</div>
+        <div class="ib-val" id="infoTime">—</div>
+      </div>
+      <div class="info-box">
+        <div class="ib-label">🔒 Sebep</div>
+        <div class="ib-val">Ebeveyn Kontrolü</div>
+      </div>
+      <div class="info-box">
+        <div class="ib-label">✅ Koruma</div>
+        <div class="ib-val green">Aktif</div>
+      </div>
+    </div>
+
+    <!-- Desc -->
+    <p class="desc">
+      Bu site <strong>AdShield Pro</strong> ebeveyn kontrolü tarafından engellendi.
+      Erişmek için yönetici iznine ihtiyacınız var.
+    </p>
+
+    <!-- Buttons -->
+    <div class="btn-row">
+      <button class="btn btn-red" onclick="history.back()">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Geri Dön
+      </button>
+      <a href="https://www.google.com" class="btn btn-ghost">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        Google'a Git
+      </a>
+    </div>
+
+    <div class="footer">Koruyan: <strong>AdShield Pro</strong></div>
+  </div>
+
+  <script src="blocked.js"></script>
+</body>
+</html>

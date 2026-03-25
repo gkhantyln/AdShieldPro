@@ -8,6 +8,7 @@
 [![Version](https://img.shields.io/badge/version-2.3-blue.svg?style=for-the-badge)](https://github.com/gkhantyln/AdShieldPro)
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Chrome](https://img.shields.io/badge/Chrome-Extension-4285F4.svg?style=for-the-badge&logo=google-chrome&logoColor=white)](https://chrome.google.com/webstore)
+[![Firefox](https://img.shields.io/badge/Firefox-Extension-FF7139.svg?style=for-the-badge&logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/tr/firefox/addon/adshield-pro/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
 
 [**Install Now**](#installation) • [**Features**](#key-features) • [**Contributing**](#contributing)
@@ -65,6 +66,7 @@ Ayarlar → Bulut Listeleri → "Özel Liste Ekle" bölümüne herhangi bir ABP/
 
 ## 🆕 v2.3 Değişiklikleri
 
+- **🦊 Firefox Desteği:** AdShield Pro artık Mozilla Firefox'ta da çalışıyor. `firefox-port/` klasörü Firefox MV3 uyumlu tam port içerir. [addons.mozilla.org](https://addons.mozilla.org/tr/firefox/addon/adshield-pro/) üzerinden yüklenebilir.
 - **Çoklu Cihaz Sync:** Özel kurallar, whitelist, engellenen siteler ve ayarlar artık `chrome.storage.sync` üzerinden tüm Chrome cihazlarınıza otomatik senkronize edilir.
 - **Ebeveyn Kontrolü:** 100.000+ domainlik yetişkin içerik listesi entegrasyonu. `webNavigation.onBeforeNavigate` ile sayfa yüklenmeden anında engelleme.
 - **Manuel Site Engelleme:** Wildcard pattern desteği (`site.com`, `*.site.com`, `*.site.*`). Engelleme `webNavigation` ile anlık, içerik hiç görünmez.

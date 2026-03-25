@@ -1,0 +1,119 @@
+{
+   "manifest_version": 3,
+   "name": "__MSG_appName__",
+   "version": "2.3",
+   "description": "__MSG_appDesc__",
+   "default_locale": "tr",
+
+   "browser_specific_settings": {
+      "gecko": {
+         "id": "adshieldpro@extension",
+         "strict_min_version": "140.0",
+         "data_collection_permissions": {
+            "required": ["none"],
+            "optional": []
+         }
+      }
+   },
+
+   "action": {
+      "default_popup": "popup/popup.html",
+      "default_title": "AdShield Pro"
+   },
+
+   "icons": {
+      "16":  "icons/icon16.png",
+      "24":  "icons/icon24.png",
+      "32":  "icons/icon32.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+   },
+
+   "background": {
+      "scripts": ["background/service_worker.js"],
+      "type": "module"
+   },
+
+   "permissions": [
+      "declarativeNetRequest",
+      "storage",
+      "scripting",
+      "activeTab",
+      "tabs",
+      "alarms",
+      "webNavigation"
+   ],
+
+   "host_permissions": ["<all_urls>"],
+
+   "content_scripts": [
+      {
+         "matches": ["<all_urls>"],
+         "js": ["content/element-picker.js"],
+         "run_at": "document_idle",
+         "all_frames": false
+      },
+      {
+         "matches": ["<all_urls>"],
+         "js": ["content/heuristic.js"],
+         "run_at": "document_start",
+         "all_frames": true
+      },
+      {
+         "matches": ["<all_urls>"],
+         "js": ["content/cosmetic-filter.js"],
+         "css": ["content/cosmetic-filter.css"],
+         "run_at": "document_start",
+         "all_frames": true
+      },
+      {
+         "matches": ["<all_urls>"],
+         "js": ["content/ai-filter.js"],
+         "run_at": "document_idle",
+         "all_frames": true
+      },
+      {
+         "matches": ["*://*.youtube.com/*", "*://m.youtube.com/*"],
+         "js": ["content/injector.js"],
+         "run_at": "document_start",
+         "all_frames": true
+      },
+      {
+         "matches": ["*://*.youtube.com/*", "*://m.youtube.com/*"],
+         "js": ["content/yt-blocker.js"],
+         "css": ["content/common.css"],
+         "run_at": "document_idle",
+         "all_frames": false
+      }
+   ],
+
+   "declarative_net_request": {
+      "rule_resources": [
+         { "id": "yt_rules",        "enabled": true, "path": "rules/rules_yt.json" },
+         { "id": "general_rules",   "enabled": true, "path": "rules/rules_general_1.json" },
+         { "id": "general_rules_2", "enabled": true, "path": "rules/rules_general_2.json" }
+      ]
+   },
+
+   "commands": {
+      "_execute_action": {
+         "suggested_key": { "default": "Alt+Shift+A" },
+         "description": "AdShield Pro popup'ı aç"
+      },
+      "toggle_extension": {
+         "suggested_key": { "default": "Alt+Shift+S" },
+         "description": "AdShield Pro'yu aç/kapat"
+      }
+   },
+
+   "web_accessible_resources": [
+      {
+         "resources": ["content/element-picker.css"],
+         "matches": ["<all_urls>"]
+      },
+      {
+         "resources": ["popup/blocked.html"],
+         "matches": ["<all_urls>"]
+      }
+   ]
+}

@@ -1,0 +1,27 @@
+/* Minimal CSS-based hiding for common ad containers */
+#player-ads,
+.video-ads,
+.ytp-ad-image-overlay,
+.ytp-ad-overlay-slot,
+.ytd-promoted-sparkles-web-renderer,
+ytd-display-ad-renderer,
+ytd-action-companion-ad-renderer,
+ytd-in-feed-ad-layout-renderer,
+ytd-ad-slot-renderer {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Extra overlays and modules - but preserve channel info modals */
+.ytp-ad-module,
+.ytp-ad-text,
+.ytp-ad-message-container,
+.ytp-paid-content-overlay,
+#masthead-ad,
+.ytp-ad-survey {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* End of aggressive hiding */
